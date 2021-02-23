@@ -9,3 +9,5 @@ By putting the sources of crop production shortfalls in Ghana on a solid empiric
 Methods: Meta-stochastic-frontier (MSF) (Huang, Huang, & Liu, 2014) 
 
 Funding: Not funded
+
+The code and data are made available for replication of the studies under this project.  You can use them for other related works as well for free. We only wish to keep track of the usefulness of the data and code. So, send a request to ftsiboe@hotmail.com if you plan to use the data and code from this repository for research beyond replication of the studies.
