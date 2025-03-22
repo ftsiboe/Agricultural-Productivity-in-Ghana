@@ -1,16 +1,15 @@
 rm(list=ls(all=TRUE));gc()
-setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_CropProd_Education/"))
-source(paste0(gsub("replications/tech_inefficiency_farmer_age","codes",getwd()),"/helpers_tech_inefficiency.R"))
-Keep.List<-c("Keep.List",ls())
+PROJECT <- getwd()
+source(paste0(getwd(),"/codes/helpers_tech_inefficiency.R"))
+DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta(paste0(getwd(),"/datasets/harmonized_crop_farmer_level_data.dta"))))
+
+for( vv in c("Survey", "Region", "Ecozon", "Season", "CropID")){
+  DATA[,vv] <- haven::as_factor(DATA[,vv]) 
+}
+
+setwd(paste0(getwd(),"/replications/tech_inefficiency_farmer_age"))
 dir.create("results")
 dir.create("results/estimations")
-plan(multisession)
-
-DATA <-  Fxn_DATA_Prep(as.data.frame(haven::read_dta(
-  paste0(gsub("replications/tech_inefficiency_farmer_age","datasets/",getwd()),"harmonized_crop_farmer_level_data.dta"))))
-for( vv in c("Survey", "Region", "Ecozon", "Season", "CropID")){
-  DATA[,vv] <- haven::as_factor(DATA[,vv])
-}
 
 saveRDS(Fxn_draw_spec(drawN=100,DATA=DATA,myseed=03222025)$drawlist,file="results/drawlist.rds")
 
@@ -53,7 +52,8 @@ lapply(
     disasg <- SPECS$disasg[fit]
     level <- SPECS$level[fit]
     TechVar <- SPECS$TechVar[fit]
-    if(!paste0(disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],".rds") %in% list.files("results/estimations/")){
+    if(!paste0(disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],".rds") %in% 
+       list.files("results/estimations/")){
       #tryCatch({ 
       
       # Data Preparation
@@ -82,7 +82,7 @@ lapply(
       # draw estimations
       drawlist = readRDS("results/drawlist.rds")
       res <- lapply(
-        unique(drawlist$ID)[1:3],Fxn_draw_estimations,
+        unique(drawlist$ID),Fxn_draw_estimations,
         data = data,
         surveyy  = "Pooled" %in% data[,"CropID"],
         intercept_shifters  = list(Svarlist=ArealistX,Fvarlist=c("Ecozon")),
