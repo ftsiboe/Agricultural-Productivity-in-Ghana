@@ -1,13 +1,13 @@
 
-rm(list=ls(all=TRUE))
+rm(list=ls(all=TRUE));gc()
 setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/AgriculturalProductivityinGhana/"))
 PROJECT <- getwd()
 source(paste0(getwd(),"/codes/helpers_tech_inefficiency.R"))
-DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta(paste0(getwd(),"/datasets/harmonized_crop_farmer_level_data.dta"))))
-
 setwd(paste0(getwd(),"/replications/tech_inefficiency_resource_extract"))
 dir.create("results")
 dir.create("results/estimations")
+
+DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("data/Harmonized_Farm_resources_extraction_Data.dta")))
 
 FXNFORMS  <- Fxn_SF_forms()$FXNFORMS
 DISTFORMS <- Fxn_SF_forms()$DISTFORMS
@@ -25,14 +25,14 @@ function(){
     data.frame(SPECS[!(SPECS$f %in% mainF & SPECS$d %in% mainD & SPECS$TechVar %in% "extraction_any" & SPECS$level %in% "Pooled"),], nnm="optimal"))
   
   SPECS <- SPECS[!(paste0(SPECS$disasg,"_",SPECS$level,"_",SPECS$TechVar,"_",names(FXNFORMS)[SPECS$f],"_",
-                          names(DISTFORMS)[SPECS$d],"_",SPECS$nnm,".rds") %in% list.files("Results/Estimations/")),]
+                          names(DISTFORMS)[SPECS$d],"_",SPECS$nnm,".rds") %in% list.files("results/estimations/")),]
   
   row.names(SPECS) <- 1:nrow(SPECS)
   
-  saveRDS(SPECS,file="SPECS.rds")
+  saveRDS(SPECS,file="results/SPECS.rds")
 }
 
-SPECS <- readRDS("SPECS.rds")
+SPECS <- readRDS("results/SPECS.rds")
 
 if(!is.na(as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID")))){
   SPECS <- SPECS[as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID")),]
@@ -49,7 +49,8 @@ lapply(
     TechVar <- SPECS$TechVar[fit]
     nnm <- SPECS$nnm[fit]
     # nnm <- "optimal"
-    if(!paste0(disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm,".rds") %in% list.files("Results/Estimations/")){
+    if(!paste0(disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm,".rds") %in% 
+       list.files("results/estimations/")){
       #tryCatch({ 
       
       # Data Preparation
@@ -76,7 +77,7 @@ lapply(
       }
       
       # draw estimations
-      drawlist = readRDS("drawlist.rds")
+      drawlist = readRDS("results/drawlist.rds")
       if(nnm %in% "fullset"){
         drawlist <- drawlist[drawlist$ID<=50,]
       }
@@ -126,8 +127,6 @@ lapply(
         Main[Main$type %in% "TE",c("sample","type","TCHLvel","Estimate")]
         Main[Main$type %in% "MTE",c("sample","type","TCHLvel","Estimate")]
         
-        
-        
         Main <- res$el_mean
         Main <- Main[Main$Survey %in% "GLSS0",]
         Main <- Main[!Main$sample %in% "unmatched",]
@@ -136,7 +135,6 @@ lapply(
         Main <- Main[Main$restrict %in% "Restricted",]
         Main <- Main[Main$sample %in% "cloglog",]
         Main
-        
         
       }
       
@@ -150,7 +148,7 @@ lapply(
         res$ef_samp <- NULL 
       }
       
-      saveRDS(res,file=paste0("Results/Estimations/",disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm,".rds"))
+      saveRDS(res,file=paste0("results/estimations/",disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm,".rds"))
       
       #}, error=function(e){})
     }

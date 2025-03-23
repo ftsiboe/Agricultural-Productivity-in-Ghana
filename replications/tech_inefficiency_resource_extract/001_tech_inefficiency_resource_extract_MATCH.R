@@ -1,13 +1,17 @@
-rm(list=ls(all=TRUE));library('magrittr');library(future.apply);library(dplyr);library(purrr)
+rm(list=ls(all=TRUE));gc();library('magrittr');library(future.apply);library(dplyr);library(purrr)
 library(MatchIt);library(randomForest);library(CBPS);library(dbarts);library(optmatch);library(Matching);library(rgenoud)
-setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_CropProd_Resource_Extract/"))
-source("/homes/ftsiboe/Articles/GH/v001_GH_CropProd_FXN.R")
-REPO <- ifelse(Sys.info()['sysname'] =="Windows","C:/Research/Articles/Ghana/GH_CropProd_Resource_Extract/",
-               "/homes/ftsiboe/Articles/GH/GH_CropProd_Resource_Extract/")
-dir.create(paste0("Results"))
-dir.create(paste0("Results/matching/"))
 
-DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("Data/Harmonized_Farm_resources_extraction_Data.dta")))
+setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/AgriculturalProductivityinGhana/"))
+PROJECT <- getwd()
+source(paste0(getwd(),"/codes/helpers_tech_inefficiency.R"))
+
+setwd(paste0(getwd(),"/replications/tech_inefficiency_resource_extract"))
+
+dir.create("results")
+dir.create("results/matching")
+
+DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("data/Harmonized_Farm_resources_extraction_Data.dta")))
+
 DATA <- DATA[as.character(haven::as_factor(DATA$CropID)) %in% "Pooled",]
 DATA$Treat <- DATA$extraction_any #%in% 1
 
@@ -28,14 +32,14 @@ summary(DATA[c(Emch,Scle,Fixd)])
 
 function(){
   m.specs <- Fxn_draw_spec(drawN=100,DATA=DATA,myseed=03182025)
-  saveRDS(m.specs$m.specs,file="Results/mspecs.rds")
-  saveRDS(m.specs$drawlist,file="drawlist.rds")
+  saveRDS(m.specs$m.specs,file="results/mspecs.rds")
+  saveRDS(m.specs$drawlist,file="results/drawlist.rds")
 }
 
-m.specs <- readRDS("Results/mspecs.rds")
+m.specs <- readRDS("results/mspecs.rds")
 
-# m.specs <- m.specs[! paste0("Results/matching/Match",stringr::str_pad(m.specs$ARRAY,4,pad="0"),".rds") %in% 
-#                      list.files(paste0("Results/matching"),full.names = T),]
+# m.specs <- m.specs[! paste0("results/matching/Match",stringr::str_pad(m.specs$ARRAY,4,pad="0"),".rds") %in%
+#                      list.files(paste0("results/matching"),full.names = T),]
 
 if(!is.na(as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID")))){
   m.specs <- m.specs[as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID")),]
@@ -45,10 +49,10 @@ lapply(
   1:nrow(m.specs), #
   function(i,DATA){
     tryCatch({
-      # i <- 10;m.data <- DATA
-      Sampels <- Fxn_Sampels(DATA=DATA,Emch=Emch,Scle=Scle,Fixd=Fixd,m.specs=m.specs,i=i)
+      # i <- 1;m.data <- DATA
+      Sampels <- Fxn_Sampels(DATA=DATA,Emch=Emch,Scle=Scle,Fixd=Fixd,m.specs=m.specs,i=i, drawlist = readRDS("results/drawlist.rds"))
       if(! m.specs$boot[i] %in% 0){Sampels[["m.out"]] <- NULL}
-      saveRDS(Sampels,file=paste0("Results/matching/Match",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))
+      saveRDS(Sampels,file=paste0("results/matching/Match",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))
     }, error=function(e){})
     return(i)
   },DATA=DATA)
@@ -56,12 +60,12 @@ lapply(
 function(){
   Fxn_Covariate_balance()
   
-  mspecs_optimal <- readRDS(paste0("Results/mspecs_optimal.rds"))[c("ARRAY","method","distance","link")]
-  mspecs_fullset <- readRDS(paste0("Results/mspecs.rds"))
+  mspecs_optimal <- readRDS(paste0("results/mspecs_optimal.rds"))[c("ARRAY","method","distance","link")]
+  mspecs_fullset <- readRDS(paste0("results/mspecs.rds"))
   mspecs_fullset <- mspecs_fullset[!grepl("linear",mspecs_fullset$link),]
   mspecs_fullset <- mspecs_fullset[mspecs_fullset$boot %in% 0,c("ARRAY","method","distance","link")]
   
-  m.specs <- readRDS(paste0("Results/mspecs.rds"))
+  m.specs <- readRDS(paste0("results/mspecs.rds"))
   m.specs <- m.specs[m.specs$boot %in% 0,]
   m.specs <- m.specs[m.specs$method %in% mspecs_fullset$method,]
   m.specs <- m.specs[m.specs$distance %in% mspecs_fullset$distance,]
@@ -76,7 +80,7 @@ function(){
           # mm <- 1
           DONE <- NULL
           tryCatch({
-            md <- dplyr::inner_join(unique(readRDS(paste0("Results/matching/Match",stringr::str_pad(m.specs$ARRAY[mm],4,pad="0"),".rds"))$md),
+            md <- dplyr::inner_join(unique(readRDS(paste0("results/matching/Match",stringr::str_pad(m.specs$ARRAY[mm],4,pad="0"),".rds"))$md),
                                     DATA,by=c("Surveyx","EaId","HhId","Mid","UID"))
             
             md$HrvstKg <- md$HrvstKg/md$Area
@@ -128,7 +132,7 @@ function(){
           return(DONE)
         }), fill = TRUE))
   
-  saveRDS(atet,file=paste0("Results/matching_treatment_effects.rds"))
+  saveRDS(atet,file=paste0("results/matching_treatment_effects.rds"))
 }
 
 # unlink(list.files(getwd(),pattern =paste0(".out"),full.names = T))

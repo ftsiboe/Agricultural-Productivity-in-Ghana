@@ -129,16 +129,15 @@ Fxn_draw_spec <- function(drawN,DATA,myseed=1113023){
 #---------------------------------------------
 # Sampels                                  ####
 
-Fxn_Sampels <- function(DATA,Emch,Scle,Fixd,m.specs,i){
+Fxn_Sampels <- function(DATA,Emch,Scle,Fixd,m.specs,i,drawlist){
   m.data <- DATA[c("Surveyx","EaId","HhId","Mid","UID","Weight","Treat",Emch,Scle,Fixd)] 
   
   m.data <- m.data[complete.cases(m.data[c("Surveyx","EaId","HhId","Mid","UID","Weight","Treat",Emch,Scle,Fixd)]),]
   
   m.data <- dplyr::inner_join(doBy::summaryBy(list("Weight",c("Surveyx", "EaId")),data=m.data,FUN=sum,na.rm=T),m.data,by=c("Surveyx", "EaId"))
   names(m.data)[names(m.data) %in% "Weight.sum"] <- "alloc"
-  
+ 
   # Drawing a stratified bootstrap sample
-  drawlist <- readRDS("drawlist.rds")
   m.data <- m.data[!m.data$EaId %in% c(t(drawlist[drawlist$ID %in% m.specs$boot[i],2:ncol(drawlist)])),]
   
   m.data <- dplyr::inner_join(doBy::summaryBy(list("Weight",c("Surveyx", "EaId")),data=m.data,FUN=sum,na.rm=T),m.data,by=c("Surveyx", "EaId"))
@@ -189,7 +188,7 @@ Fxn_Sampels <- function(DATA,Emch,Scle,Fixd,m.specs,i){
 #---------------------------------------------
 # Covariate balance                        ####
 Fxn_Covariate_balance <- function(){
-  m.specs <- readRDS("Results/mspecs.rds")
+  m.specs <- readRDS("results/mspecs.rds")
   m.specs <- m.specs[m.specs$boot %in% 0,]
   
   bal_tab <- as.data.frame(
@@ -200,7 +199,7 @@ Fxn_Covariate_balance <- function(){
           # i <- 1
           DONE <- NULL
           tryCatch({ 
-            m.out <-  readRDS(paste0(REPO,"Results/matching/Match",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))
+            m.out <-  readRDS(paste0("results/matching/Match",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))
             bal_tab <- cobalt::bal.tab(m.out$m.out, un = TRUE,abs=TRUE, stats = c("m", "v", "ks"))$Balance
             bal_tab$Coef <- rownames(bal_tab)
             bal_tab <- bal_tab %>%  tidyr::gather(stat, value, c("Diff.Un","V.Ratio.Un","KS.Un","Diff.Adj","V.Ratio.Adj","KS.Adj"))
@@ -227,9 +226,9 @@ Fxn_Covariate_balance <- function(){
   rate$name <- ifelse(rate$distance %in% "scaled_euclidean","Scaled Euclidean",rate$name)
   rate$name <- ifelse(rate$distance %in% "mahalanobis","Mahalanobis",rate$name)
   rate$ID <- 1:nrow(rate)
-  saveRDS(rate,file="Results/mspecs_ranking.rds")
-  saveRDS(rate[nrow(rate),],file="Results/mspecs_optimal.rds")
-  saveRDS(bal_tab,file="Results/balance_table.rds")
+  saveRDS(rate,file="results/mspecs_ranking.rds")
+  saveRDS(rate[nrow(rate),],file="results/mspecs_optimal.rds")
+  saveRDS(bal_tab,file="results/balance_table.rds")
   return("done")
 }
 #---------------------------------------------
@@ -939,9 +938,9 @@ Fxn.MSF_WorkHorse_FT <- function(
     # Meta SF Estimation matched [TGR]             ####
     if(!is.null(nnm)){
       
-      mspecs_path    <- "Results/matching/"
-      mspecs         <- readRDS("Results/mspecs.rds")
-      mspecs_optimal <- readRDS("Results/mspecs_optimal.rds")[c("ARRAY","method","distance","link")]
+      mspecs_path    <- "results/matching/"
+      mspecs         <- readRDS("results/mspecs.rds")
+      mspecs_optimal <- readRDS("results/mspecs_optimal.rds")[c("ARRAY","method","distance","link")]
       mspecs_fullset <- mspecs[!grepl("linear",mspecs$link),]
       mspecs_fullset <- mspecs_fullset[mspecs_fullset$boot %in% 0,c("ARRAY","method","distance","link")] #!!!
       
