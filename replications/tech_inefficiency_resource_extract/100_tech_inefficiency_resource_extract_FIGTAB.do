@@ -1,5 +1,5 @@
 
-use "Data\Harmonized_Farm_resources_extraction_Data.dta",clear
+use "data\tech_inefficiency_resource_extract_data.dta",clear
 tab Surveyx
 decode CropID,gen(CropIDx)
 keep if CropIDx == "Pooled"
@@ -14,14 +14,14 @@ sca drop _all
 loc ApID0 = 0
 tempfile Summaries DATA
 
-use "Data\Harmonized_Farm_resources_extraction_Data.dta",clear
+use "data\tech_inefficiency_resource_extract_data.dta",clear
 decode CropID,gen(CropIDx)
 qui levelsof CropIDx, local(levels)
 
 qui foreach crop in `levels'{
   
 *loc crop "Pooled"
-use "Data\Harmonized_Farm_resources_extraction_Data.dta",clear
+use "data\tech_inefficiency_resource_extract_data.dta",clear
 decode CropID,gen(CropIDx)
 keep if CropIDx == "`crop'"
 gen disagCat = `disag'
@@ -208,7 +208,7 @@ loc ApID0=`ApID0'+1
 use `Summaries', clear
 
 export excel CropIDx Equ Coef Beta SE Tv Pv Min Max SD N /*
-*/ using "Results\Resource_Extraction_Productivity_Gap_Ghana_Results.xlsx", /*
+*/ using "results\tech_inefficiency_resource_extract_results.xlsx", /*
 */ sheet("Means_`disag'") sheetmodify firstrow(variables) 
 
 }
@@ -216,7 +216,7 @@ export excel CropIDx Equ Coef Beta SE Tv Pv Min Max SD N /*
 
 mat drop _all
 sca drop _all
-use "Data\Harmonized_Farm_resources_extraction_Data",clear
+use "data\tech_inefficiency_resource_extract_data",clear
 decode CropID,gen(CropIDx)
 tabstat extraction_any mining_any mining_comm mining_gala quarrying sand salt if CropIDx == "Cassava",by(Surveyx) save
 sum Season
@@ -281,13 +281,5 @@ keep Variable crop mesure Beta SE Tv Pv Min Max SD N
 order Variable crop mesure Beta SE Tv Pv Min Max SD N
 
 export excel Variable crop mesure Beta SE Tv Pv Min Max SD N /*
-*/ using "Results\Resource_Extraction_Productivity_Gap_Ghana_Results.xlsx", /*
+*/ using "results\tech_inefficiency_resource_extract_results.xlsx", /*
 */ sheet("extraction") sheetmodify firstrow(variables) 
-
-
-
-
-
-
-
-
