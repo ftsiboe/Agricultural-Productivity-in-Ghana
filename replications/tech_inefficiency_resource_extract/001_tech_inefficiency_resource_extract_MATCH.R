@@ -9,7 +9,7 @@ setwd(paste0(getwd(),"/replications/tech_inefficiency_resource_extract"))
 
 dir.create("results")
 dir.create("results/matching")
-
+ 
 DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("data/Harmonized_Farm_resources_extraction_Data.dta")))
 
 DATA <- DATA[as.character(haven::as_factor(DATA$CropID)) %in% "Pooled",]
