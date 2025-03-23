@@ -7,7 +7,7 @@ setwd(paste0(getwd(),"/replications/tech_inefficiency_resource_extract"))
 dir.create("results")
 dir.create("results/estimations")
 
-DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("data/Harmonized_Farm_resources_extraction_Data.dta")))
+DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("data/tech_inefficiency_resource_extract_data.dta")))
 
 FXNFORMS  <- Fxn_SF_forms()$FXNFORMS
 DISTFORMS <- Fxn_SF_forms()$DISTFORMS

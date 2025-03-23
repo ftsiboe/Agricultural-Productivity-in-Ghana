@@ -3,16 +3,20 @@
 rm(list=ls(all=TRUE))
 library('magrittr');library(ggplot2);library(rasterVis);library(gridExtra)
 library(dplyr);library(gtable)
-setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_CropProd_Resource_Extract/"))
-source("ers_theme.R")
-mspecs_optimal <- readRDS("Results/mspecs_optimal.rds")
+setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_AgricProductivityLab/"))
+PROJECT <- getwd()
+source(paste0(getwd(),"/codes/ers_theme.R"))
+setwd(paste0(getwd(),"/replications/tech_inefficiency_resource_extract"))
+dir.create("results")
+dir.create("results/figures")
+mspecs_optimal <- readRDS("results/mspecs_optimal.rds")
 Keep.List<-c("Keep.List",ls())
 #-----------------------------------------
 # Figure - Covariate balance           ####
 rm(list= ls()[!(ls() %in% c(Keep.List))])
-bal_tab <- readRDS(paste0("Results/balance_table.rds"))
-ranking <- readRDS(paste0("Results/mspecs_ranking.rds"))
-mspecs  <- readRDS(paste0("Results/mspecs.rds"))
+bal_tab <- readRDS(paste0("results/balance_table.rds"))
+ranking <- readRDS(paste0("results/mspecs_ranking.rds"))
+mspecs  <- readRDS(paste0("results/mspecs.rds"))
 CovBalDATA <- rbind(bal_tab[(bal_tab$sample %in% "Un" & bal_tab$ARRAY %in% 5),],
                     bal_tab[bal_tab$sample %in% "Adj",])
 
@@ -53,8 +57,6 @@ mlab <- c("Household:size","Household:females","Household:dependency",
           "Region:Upper East","Region:Upper West","Region:Volta","Region:Western",
           "Ecology:Coastal Savanna","Ecology:Forest Zone","Ecology:Guinea Savanah","Ecology:Sudan Savanah",
           "Ecology:Transitional Zone","Urban Locality","GLSS7 Survey")
-
-# commodities <- readRDS("N:/ARMS/ARMS Work Share/FTsiboe/Data/apmFarms/commodities.rds")
 
 for(i in 1:length(mval)){
   CovBalDATA$Coef <- ifelse(CovBalDATA$Coef %in% mval[i]  ,i,CovBalDATA$Coef)
@@ -115,19 +117,18 @@ balance <- ggplot(
         strip.text = element_text(size = 8),
         strip.background = element_rect(fill = "white", colour = "black", size = 1));balance
 
-ggsave(paste0("Results/Figs/Covariate_balance_variance.png"), balance,dpi = 600,width = 11, height = 7)
+ggsave(paste0("results/figures/covariate_balance_variance.png"), balance,dpi = 600,width = 11, height = 7)
 
 #-----------------------------------------
-# Matching TE                          ####
+# Input TE                             ####
 rm(list= ls()[!(ls() %in% c(Keep.List))])
 
-data <- readRDS(paste0("Results/te_summary.rds"))
+data <- readRDS(paste0("results/te_summary.rds"))
 data <- data[data$method %in% mspecs_optimal$method,]
 data <- data[data$distance %in% mspecs_optimal$distance,]
 data <- data[data$link %in% "probit",]
 data <- data[order(data$est),]
 data <- data[data$level %in% c("ATE","ATET","ATEU"),]
-
 
 data$level <- ifelse(data$level %in% "ATE" ,1,data$level)
 data$level <- ifelse(data$level %in% "ATET" ,2,data$level)
@@ -162,7 +163,6 @@ data$outC <- factor(data$outC,levels = 1:10,
                       "OwnLnd" ,
                       "Credit"))
 
-
 dodge <- position_dodge(width = 0.75)
 figTe <- ggplot(data=data,aes(x=reorder(outC,est), y=est,group=level,color=level,fill=level,shape=level)) +
   geom_hline(yintercept =0,size = 0.5,color = "black") +
@@ -185,15 +185,15 @@ figTe <- ggplot(data=data,aes(x=reorder(outC,est), y=est,group=level,color=level
         strip.text = element_text(size = 11),
         strip.background = element_rect(fill = "white", colour = "black", size = 1))+ coord_flip();figTe
 
-write.csv(data,file=paste0("Results/input_TE_data.csv"))
+write.csv(data,file=paste0("results/input_TE_data.csv"))
 
-ggsave(paste0("Results/Figs/input_TE.png"), figTe,dpi = 600,width = 6, height =5)
+ggsave(paste0("results/figures/input_te.png"), figTe,dpi = 600,width = 6, height =5)
 
 #-----------------------------------------
 # Matching TE                          ####
 rm(list= ls()[!(ls() %in% c(Keep.List))])
 
-data <- readRDS(paste0("Results/matching_treatment_effects.rds"))
+data <- readRDS(paste0("results/matching_treatment_effects.rds"))
 
 data$Matching <- ifelse(data$name %in% "euclidean" ,1,NA)
 data$Matching <- ifelse(data$name %in% "scaled_euclidean" ,2,data$Matching)
@@ -246,14 +246,14 @@ figTe <- ggplot(data=data,aes(x=Matching, y=(exp(estimate)-1)*100)) +
         strip.text = element_text(size = 11),
         strip.background = element_rect(fill = "white", colour = "black", size = 1));figTe
 
-write.csv(data,file=paste0("Results/data_a1.csv"))
+write.csv(data,file=paste0("results/data_a1.csv"))
 
-ggsave(paste0("Results/Figs/Matching_TE.png"), figTe,dpi = 600,width = 5, height =8)
+ggsave(paste0("results/figures/matching_te.png"), figTe,dpi = 600,width = 5, height =8)
 
 #-----------------------------------------
 # Main Specification                   ####
 rm(list= ls()[!(ls() %in% c(Keep.List))])
-res <- list.files("Results/Estimations/",pattern = "_TL_hnormal_optimal.rds",full.names = T)
+res <- list.files("results/estimations/",pattern = "_TL_hnormal_optimal.rds",full.names = T)
 res <- res[grepl("CropID_Pooled_",res)]
 res <- as.data.frame(
   data.table::rbindlist(
@@ -262,7 +262,7 @@ res <- as.data.frame(
       function(file) {
         DONE <- NULL
         tryCatch({
-          # file <- list.files("Results/Estimations/",pattern = "TL_hnormal_optimal.rds",full.names = T)[5]
+          # file <- list.files("results/estimations/",pattern = "TL_hnormal_optimal.rds",full.names = T)[5]
           res <- readRDS(file)
           
           sf_estm <- res$sf_estm
@@ -303,13 +303,13 @@ res <- as.data.frame(
         return(DONE)
       }), fill = TRUE))
 
-wb <- openxlsx::loadWorkbook("Results/Resource_Extraction_Productivity_Gap_Ghana_Results.xlsx")
+wb <- openxlsx::loadWorkbook("results/tech_inefficiency_resource_extract_results.xlsx")
 openxlsx::writeData(wb, sheet = "msf",res , colNames = T, startCol = "A", startRow = 1)
-openxlsx::saveWorkbook(wb,"Results/Resource_Extraction_Productivity_Gap_Ghana_Results.xlsx",overwrite = T)
+openxlsx::saveWorkbook(wb,"results/tech_inefficiency_resource_extract_results.xlsx",overwrite = T)
 #-----------------------------------------
-# Fig - Distribution                   ####
+# Fig - Distribution !!                   ####
 rm(list= ls()[!(ls() %in% c(Keep.List))])
-dataFrq <- readRDS("Results/Estimations/CropID_Pooled_disabled_TL_hnormal_fullset.rds")
+dataFrq <- readRDS("results/estimations/CropID_Pooled_disabled_TL_hnormal_fullset.rds")
 dataFrq <- dataFrq$ef_dist
 dataFrq <- dataFrq[dataFrq$estType %in% "teBC",]
 dataFrq <- dataFrq[dataFrq$Survey %in% "GLSS0",]
@@ -363,16 +363,14 @@ Fig <- ggplot(data=dataFrq,aes(x=Frqlevel,y=Estimate, fill = Tech,color=Tech,sha
         plot.caption = element_text(size=11,hjust = 0 ,vjust = 0, face = "italic"),
         strip.text = element_text(size = 6),
         strip.background = element_rect(fill = "white", colour = "black", size = 1))
-Fig
 
-if(Sys.info()['sysname'] =="Windows"){ggsave("Results/Figs/score_distributions.png", Fig,dpi = 600,width = 11, height = 7)}
-if(Sys.info()['sysname'] !="Windows"){ggsave("Results/Figs/score_distributions.pdf", Fig,dpi = 600,width = 11, height = 7)}
+ggsave("results/figures/score_distributions.png", Fig,dpi = 600,width = 11, height = 7)
 
 #-----------------------------------------
 # Fig - Heterogeneity                  ####
 
 rm(list= ls()[!(ls() %in% c(Keep.List))])
-res <- readRDS("Results/Estimations/CropID_Pooled_disabled_TL_hnormal_optimal.rds")$disagscors
+res <- readRDS("results/estimations/CropID_Pooled_disabled_TL_hnormal_optimal.rds")$disagscors
 res$disasg <- res$disagscors_var
 res$level <- res$disagscors_level
 res <- res[res$estType %in% "teBC",]
@@ -470,17 +468,13 @@ fig <- cowplot::plot_grid(
   greedy=F)
 fig <- cowplot::plot_grid(fig,legend,ncol=1,rel_heights=c(1,0.1))
 fig <- cowplot::plot_grid(Ylab,fig,nrow=1,rel_widths =c(0.002,0.03))
-if(Sys.info()['sysname'] =="Windows"){ggsave("Results/Figs/heterogeneity_crop_region.png", fig,dpi = 600,width = 8, height = 5)}
-if(Sys.info()['sysname'] !="Windows"){ggsave("Results/Figs/heterogeneity_crop_region.pdf", fig,dpi = 600,width = 8, height = 5)}
+ggsave("results/figures/heterogeneity_crop_region.png", fig,dpi = 600,width = 8, height = 5)
 
 fig.Farmer   <- eff_fig_fxn(disasg = c("AgeCat","Female","EduLevel"),
                             type="farmer",xsize=5.5) +
   labs(title="",x="", y ="Percentage Difference (Disabled less Nondisabled)\n",caption = "") +
   theme(legend.position="bottom")
-if(Sys.info()['sysname'] =="Windows"){ggsave("Results/Figs/heterogeneity_genderAge.png", fig.Farmer,dpi = 600,width = 8, height = 5)}
-if(Sys.info()['sysname'] !="Windows"){ggsave("Results/Figs/heterogeneity_genderAge.pdf", fig.Farmer,dpi = 600,width = 8, height = 5)}
-
-
+ggsave("results/figures/heterogeneity_genderAge.png", fig.Farmer,dpi = 600,width = 8, height = 5)
 
 #-----------------------------------------
 # Fig - Robustness                     ####
@@ -488,8 +482,8 @@ rm(list= ls()[!(ls() %in% c(Keep.List))])
 data <- as.data.frame(
   data.table::rbindlist(
     lapply(
-      c("Results/Estimations/CropID_Pooled_disabled_CD_hnormal_optimal.rds",
-        list.files("Results/Estimations/",pattern = "CropID_Pooled_disabled_TL_",full.names = T)),
+      c("results/estimations/CropID_Pooled_disabled_CD_hnormal_optimal.rds",
+        list.files("results/estimations/",pattern = "CropID_Pooled_disabled_TL_",full.names = T)),
       function(file) {
         DONE <- NULL
         tryCatch({
@@ -643,12 +637,12 @@ fig <- ggplot(data=dataF,aes(x=factor(x), y=Estimate, group=1)) +
         strip.text = element_text(size = 10),
         strip.background = element_rect(fill = "white", colour = "black", size = 1)) + coord_flip()
 
-ggsave(paste0("Results/Figs/robustness.png"),fig,dpi = 600,width = 6.8, height = 7.8)
+ggsave(paste0("results/figures/robustness.png"),fig,dpi = 600,width = 6.8, height = 7.8)
 
 #-----------------------------------------
 
 rm(list= ls()[!(ls() %in% c(Keep.List))])
-res <- readRDS("Results/Estimations/CropID_Pooled_disabled_TL_hnormal_optimal.rds")$disagscors
+res <- readRDS("results/estimations/CropID_Pooled_disabled_TL_hnormal_optimal.rds")$disagscors
 res$disasg <- res$disagscors_var
 res$level <- res$disagscors_level
 res <- res[res$estType %in% "teBC",]
