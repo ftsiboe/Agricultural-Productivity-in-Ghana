@@ -139,9 +139,22 @@ lapply(
       }
       
       res[["names"]] <- paste0(disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d])
+  
+      res$rk_dist <- NULL
+      res$rk_mean <- NULL
+      res$rk_samp <- NULL
+      res$el_samp <- NULL
+      res$ef_samp <- NULL
+      
       saveRDS(res,file=paste0("results/estimations/",disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],".rds"))
       rm(res,data);gc()
       #}, error=function(e){})
     }
     return(fit)
   })
+
+
+
+
+
+

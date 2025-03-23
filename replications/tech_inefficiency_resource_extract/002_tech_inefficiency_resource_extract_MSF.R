@@ -77,7 +77,9 @@ lapply(
       
       # draw estimations
       drawlist = readRDS("drawlist.rds")
-      if(nnm %in% "fullset") drawlist <- drawlist[drawlist$ID<=50,]
+      if(nnm %in% "fullset"){
+        drawlist <- drawlist[drawlist$ID<=50,]
+      }
       res <- lapply(
         unique(drawlist$ID),Fxn_draw_estimations,
         data = data,
@@ -139,6 +141,15 @@ lapply(
       }
       
       res[["names"]] <- paste0(disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm)
+      
+      if(nnm %in% "fullset"){
+        res$rk_dist <- NULL
+        res$rk_mean <- NULL
+        res$rk_samp <- NULL
+        res$el_samp <- NULL
+        res$ef_samp <- NULL 
+      }
+      
       saveRDS(res,file=paste0("Results/Estimations/",disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm,".rds"))
       
       #}, error=function(e){})
