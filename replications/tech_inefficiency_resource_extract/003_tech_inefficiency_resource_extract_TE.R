@@ -1,14 +1,14 @@
 
-rm(list=ls(all=TRUE));library('magrittr');library(future.apply);library(dplyr);library(quantreg);library(data.table);library(systemfit);library(tidyr);library(nnet);library(stats)
+rm(list=ls(all=TRUE));gc();library('magrittr');library(future.apply);library(dplyr);library(quantreg);library(data.table);library(systemfit);library(tidyr);library(nnet);library(stats)
 library(MatchIt);library(randomForest);library(CBPS);library(dbarts);library(optmatch);library(Matching);library(rgenoud);library(ggplot2);library(haven);library(marginaleffects)
-setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_CropProd_Resource_Extract/"))
-source("/homes/ftsiboe/Articles/GH/v001_GH_CropProd_FXN.R")
-REPO <- ifelse(Sys.info()['sysname'] =="Windows","C:/Research/Articles/Ghana/GH_CropProd_Resource_Extract/",
-               "/homes/ftsiboe/Articles/GH/GH_CropProd_Resource_Extract/")
-dir.create(paste0(REPO,"Results"))
-dir.create(paste0(REPO,"Results/te/"))
+setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_AgricProductivityLab/"))
+PROJECT <- getwd()
+source(paste0(getwd(),"/codes/helpers_tech_inefficiency.R"))
+setwd(paste0(getwd(),"/replications/tech_inefficiency_resource_extract"))
+dir.create("results")
+dir.create("results/te")
 
-DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("Data/Harmonized_Farm_resources_extraction_Data.dta")))
+DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("data/Harmonized_Farm_resources_extraction_Data.dta")))
 DATA <- DATA[as.character(haven::as_factor(DATA$CropID)) %in% "Pooled",]
 DATA$Treat <- DATA$extraction_any %in% 1
 
@@ -20,14 +20,15 @@ Emch <- c("Survey","Region","Ecozon","Locality","Female")
 Scle <- c("AgeYr","YerEdu","HHSizeAE","FmleAERt","Depend","CrpMix",Arealist)
 Fixd <- c("Credit","OwnLnd","Ethnic","Marital","Religion","Head")
 
-m.specs <- readRDS("Results/mspecs.rds")
+m.specs <- readRDS("results/mspecs.rds")
 
+plan(multisession)
 future_lapply(
   1:nrow(m.specs), #
   function(i){
     tryCatch({
       # i <- 1
-      md <- readRDS(paste0(REPO,"Results/matching/Match",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))$md[c("UID","weights")]
+      md <- readRDS(paste0("results/matching/Match",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))$md[c("UID","weights")]
       md <- dplyr::inner_join(DATA,md,by="UID")
       
       md$HrvstKg <- md$HrvstKg/md$Area
@@ -92,7 +93,7 @@ future_lapply(
       
       atet_scalar <- data.frame(m.specs[i,],atet_scalar)
 
-      saveRDS(atet_scalar,file=paste0("Results/te/te",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))
+      saveRDS(atet_scalar,file=paste0("results/te/te",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))
       #-----------------------------------------------------------
       return(i)
     }, error = function(e){return(NULL)})
@@ -103,7 +104,7 @@ function(){
   estim <- as.data.frame(
     data.table::rbindlist(
       lapply(
-        list.files(paste0("Results/te/"),full.names = T),
+        list.files(paste0("results/te/"),full.names = T),
         function(file){
           # i <- 1
           DONE <- NULL
@@ -126,6 +127,6 @@ function(){
   estim$jack_tvl <- estim$jack_mean/estim$jack_se
   estim$jack_pvl <- 2 * (1 - pt(abs(estim$jack_tvl), estim$jack_n-2))
   
-  saveRDS(estim,file=paste0("Results/te_summary.rds"))
+  saveRDS(estim,file=paste0("results/te_summary.rds"))
 }
 
