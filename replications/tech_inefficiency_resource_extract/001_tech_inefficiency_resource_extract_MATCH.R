@@ -1,6 +1,4 @@
-rm(list=ls(all=TRUE));gc();library('magrittr');library(future.apply);library(dplyr);library(purrr)
-library(MatchIt);library(randomForest);library(CBPS);library(dbarts);library(optmatch);library(Matching);library(rgenoud)
-
+rm(list=ls(all=TRUE));gc()
 setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_AgricProductivityLab/"))
 PROJECT <- getwd()
 source(paste0(getwd(),"/codes/helpers_tech_inefficiency.R"))

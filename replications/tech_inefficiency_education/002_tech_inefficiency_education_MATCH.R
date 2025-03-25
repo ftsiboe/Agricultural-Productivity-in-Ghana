@@ -1,5 +1,4 @@
-rm(list=ls(all=TRUE));gc();library('magrittr');library(future.apply);library(dplyr);library(purrr)
-library(MatchIt);library(randomForest);library(CBPS);library(dbarts);library(optmatch);library(Matching);library(rgenoud)
+rm(list=ls(all=TRUE));gc()
 
 setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_AgricProductivityLab/"))
 PROJECT <- getwd()
@@ -49,8 +48,8 @@ lapply(
   1:nrow(m.specs), #
   function(i,DATA){
     tryCatch({
-      # i <- 10;m.data <- DATA
-      Sampels <- Fxn_Sampels(DATA=DATA,Emch=Emch,Scle=Scle,Fixd=Fixd,m.specs=m.specs,i=i)
+      # i <- 1;m.data <- DATA
+      Sampels <- Fxn_Sampels(DATA=DATA,Emch=Emch,Scle=Scle,Fixd=Fixd,m.specs=m.specs,i=i,drawlist=readRDS("results/drawlist.rds"))
       if(! m.specs$boot[i] %in% 0){Sampels[["m.out"]] <- NULL}
       saveRDS(Sampels,file=paste0("results/matching/Match",stringr::str_pad(m.specs$ARRAY[i],4,pad="0"),".rds"))
     }, error=function(e){})

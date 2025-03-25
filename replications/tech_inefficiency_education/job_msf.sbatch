@@ -8,7 +8,8 @@
 #SBATCH --array=1-30
 #SBATCH --mail-user=ftsiboe@ksu.edu
 #SBATCH --mail-type=ALL
+#SBATCH --output=/dev/null
 
 module purge
 module load R/4.2.1-foss-2022a GDAL/3.5.0-foss-2022a PROJ/9.0.0-GCCcore-11.3.0
-R --no-save -q < 004_GH_CropProd_Education_MSF.R
+R --no-save -q < 004_tech_inefficiency_education_MSF.R

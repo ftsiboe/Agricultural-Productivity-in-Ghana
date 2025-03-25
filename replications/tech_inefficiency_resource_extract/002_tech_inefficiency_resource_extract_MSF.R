@@ -1,4 +1,3 @@
-
 rm(list=ls(all=TRUE));gc()
 setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_AgricProductivityLab/"))
 PROJECT <- getwd()

@@ -1,11 +1,13 @@
-rm(list=ls(all=TRUE))
-setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_CropProd_Education/"))
-source("/homes/ftsiboe/Articles/GH/v001_GH_CropProd_FXN.R")
-Keep.List<-c("Keep.List",ls())
-dir.create("Results/Estimations")
-plan(multisession)
+rm(list=ls(all=TRUE));gc()
+setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_AgricProductivityLab/"))
+PROJECT <- getwd()
+source(paste0(getwd(),"/codes/helpers_tech_inefficiency.R"))
+setwd(paste0(getwd(),"/replications/tech_inefficiency_education"))
+dir.create("results")
+dir.create("results/estimations")
 
-DATA <-  Fxn_DATA_Prep(as.data.frame(haven::read_dta("Data/Harmonized_Farm_Education_Data.dta")))
+DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("data/tech_inefficiency_education_data.dta")))
+
 DATA$YerEduCat <- as.integer(cut(DATA$YerEdu,c(-1,0,3,6,9,12,100),right = T))
 DATA$YerEduCat <- ifelse(DATA$educated %in% 1 & DATA$YerEduCat %in% 1,NA,DATA$YerEduCat)
 DATA$EduLevel   <- as.integer(DATA$EduLevel)
@@ -33,14 +35,14 @@ function(){
     data.frame(SPECS[!(SPECS$f %in% mainF & SPECS$d %in% mainD & SPECS$TechVar %in% "educated" & SPECS$level %in% "Pooled"),], nnm="optimal"))
   
   SPECS <- SPECS[!(paste0(SPECS$disasg,"_",SPECS$level,"_",SPECS$TechVar,"_",names(FXNFORMS)[SPECS$f],"_",
-                          names(DISTFORMS)[SPECS$d],"_",SPECS$nnm,".rds") %in% list.files("Results/Estimations/")),]
+                          names(DISTFORMS)[SPECS$d],"_",SPECS$nnm,".rds") %in% list.files("results/estimations/")),]
   
   row.names(SPECS) <- 1:nrow(SPECS)
   
-  saveRDS(SPECS,file="SPECS.rds")
+  saveRDS(SPECS,file="results/SPECS.rds")
 }
 
-SPECS <- readRDS("SPECS.rds")
+SPECS <- readRDS("results/SPECS.rds")
 
 if(!is.na(as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID")))){
   SPECS <- SPECS[as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID")),]
@@ -85,7 +87,7 @@ lapply(
       }
       
       # draw estimations
-      drawlist = readRDS("drawlist.rds")
+      drawlist = readRDS("results/drawlist.rds")
       
       if(nnm %in% "fullset") drawlist <- drawlist[drawlist$ID<=50,]
       
@@ -146,7 +148,7 @@ lapply(
       }
       
       res[["names"]] <- paste0(disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm)
-      saveRDS(res,file=paste0("Results/Estimations/",disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm,".rds"))
+      saveRDS(res,file=paste0("results/estimations/",disasg,"_",level,"_",TechVar,"_",names(FXNFORMS)[f],"_",names(DISTFORMS)[d],"_",nnm,".rds"))
       
       #}, error=function(e){})
     }

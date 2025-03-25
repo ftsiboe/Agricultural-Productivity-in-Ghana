@@ -2,4 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
-
+**/results/job_msf.sbatch
+**/results/job_te.sbatch
+**/results/job_msf.sbatch
+**/results/job_match.sbatch
+**/results/matching/**
+**/results/te/**
+**/results/estimations/**
+**/results/SPECS.rds
