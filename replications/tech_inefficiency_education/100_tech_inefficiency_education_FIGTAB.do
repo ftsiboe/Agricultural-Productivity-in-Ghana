@@ -1,4 +1,4 @@
-use "Data\Harmonized_Farm_Education_Data",clear
+use "$GitHub\GH-Agric-Productivity-Lab\replications\tech_inefficiency_education\data\tech_inefficiency_education_data",clear
 decode CropID,gen(CropIDx)
 keep if CropIDx == "Pooled"
 qui levelsof CropIDx, local(levels)
@@ -13,14 +13,14 @@ sca drop _all
 loc ApID0 = 0
 tempfile Summaries DATA
 
-use "Data\Harmonized_Farm_Education_Data",clear
+use "$GitHub\GH-Agric-Productivity-Lab\replications\tech_inefficiency_education\data\tech_inefficiency_education_data",clear
 decode CropID,gen(CropIDx)
 qui levelsof CropIDx, local(levels)
 
 qui foreach crop in `levels'{
   
 *loc crop "Pooled"
-use "Data\Harmonized_Farm_Education_Data.dta",clear
+use "$GitHub\GH-Agric-Productivity-Lab\replications\tech_inefficiency_education\data\tech_inefficiency_education_data",clear
 decode CropID,gen(CropIDx)
 keep if CropIDx == "`crop'"
 gen disagCat = `edu'
@@ -208,14 +208,15 @@ loc ApID0=`ApID0'+1
 use `Summaries', clear
 
 export excel CropIDx Equ Coef Beta SE Tv Pv Min Max SD N /*
-*/ using "Results\Education_Productivity_Gap_Ghana_Results_Means.xlsx", /*
+*/ using "$GitHub\GH-Agric-Productivity-Lab\replications\tech_inefficiency_education\results\tech_inefficiency_education_results_means.xlsx", /*
 */ sheet("`edu'") sheetmodify firstrow(variables) 
 
 }
 
+
 mat drop _all
 sca drop _all
-use "Data\Harmonized_Farm_Education_Data",clear
+use "$GitHub\GH-Agric-Productivity-Lab\replications\tech_inefficiency_education\data\tech_inefficiency_education_data",clear
 keep if inlist(Surveyx,"GLSS6","GLSS7")
 decode CropID,gen(CropIDx)
 gen Trend=Season-r(min)
@@ -283,7 +284,7 @@ keep Variable crop mesure Beta SE Tv Pv Min Max SD N
 order Variable crop mesure Beta SE Tv Pv Min Max SD N
 
 export excel Variable crop mesure Beta SE Tv Pv Min Max SD N /*
-*/ using "Results\Education_Productivity_Gap_Ghana_Results_Means.xlsx", /*
+*/ using "$GitHub\GH-Agric-Productivity-Lab\replications\tech_inefficiency_education\results\tech_inefficiency_education_results_means.xlsx", /*
 */ sheet("education_state") sheetmodify firstrow(variables) 
 
 
