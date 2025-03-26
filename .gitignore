@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+slurm-*.out
 **/results/job_msf.sbatch
 **/results/job_te.sbatch
 **/results/job_msf.sbatch

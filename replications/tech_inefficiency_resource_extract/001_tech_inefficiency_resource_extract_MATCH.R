@@ -1,3 +1,4 @@
+# "/homes/ftsiboe/Articles/GH/GH_AgricProductivityLab/replications/tech_inefficiency_resource_extract/"
 rm(list=ls(all=TRUE));gc()
 setwd(ifelse(Sys.info()['sysname'] =="Windows",getwd(),"/homes/ftsiboe/Articles/GH/GH_AgricProductivityLab/"))
 PROJECT <- getwd()
@@ -57,80 +58,6 @@ lapply(
 
 function(){
   Fxn_Covariate_balance()
-  
-  mspecs_optimal <- readRDS(paste0("results/mspecs_optimal.rds"))[c("ARRAY","method","distance","link")]
-  mspecs_fullset <- readRDS(paste0("results/mspecs.rds"))
-  mspecs_fullset <- mspecs_fullset[!grepl("linear",mspecs_fullset$link),]
-  mspecs_fullset <- mspecs_fullset[mspecs_fullset$boot %in% 0,c("ARRAY","method","distance","link")]
-  
-  m.specs <- readRDS(paste0("results/mspecs.rds"))
-  m.specs <- m.specs[m.specs$boot %in% 0,]
-  m.specs <- m.specs[m.specs$method %in% mspecs_fullset$method,]
-  m.specs <- m.specs[m.specs$distance %in% mspecs_fullset$distance,]
-  m.specs <- m.specs[m.specs$link %in% mspecs_fullset$link,]
-  m.specs$name <- ifelse(m.specs$link %in% NA,m.specs$distance,m.specs$link)
-  
-  atet <- as.data.frame(
-    data.table::rbindlist(
-      lapply(
-        1:nrow(m.specs),
-        function(mm){
-          # mm <- 1
-          DONE <- NULL
-          tryCatch({
-            md <- dplyr::inner_join(unique(readRDS(paste0("results/matching/Match",stringr::str_pad(m.specs$ARRAY[mm],4,pad="0"),".rds"))$md),
-                                    DATA,by=c("Surveyx","EaId","HhId","Mid","UID"))
-            
-            md$HrvstKg <- md$HrvstKg/md$Area
-            md$SeedKg <- md$SeedKg/md$Area
-            md$HHLaborAE <- md$HHLaborAE/md$Area
-            md$HirdHr <- md$HirdHr/md$Area
-            md$FertKg <- md$FertKg/md$Area
-            md$PestLt <- md$PestLt/md$Area
-            
-            atet_scalar <- as.data.frame(
-              data.table::rbindlist(
-                future_lapply(
-                  c("HrvstKg","Area", "SeedKg", "HHLaborAE","HirdHr","FertKg","PestLt"),
-                  function(outcome){
-                    # outcome <- "Area"
-                    DONE <- NULL
-                    tryCatch({
-                      atet_scalar <- marginaleffects::avg_comparisons(
-                        lm(as.formula(paste0("log(",outcome,"+0.00001)","~Treat*(",paste0(c(paste0("factor(",c(Emch,Fixd),")"),Scle),collapse = "+"),")")),
-                           data = md[!log(md[,outcome]+0.00001) %in% c(NA,NaN,Inf,-Inf),], weights = weights), variables = "Treat",
-                        newdata = subset(md[!log(md[,outcome]+0.00001) %in% c(NA,NaN,Inf,-Inf),], Treat == 1),wts = "weights",vcov="HC0")
-                      atet_scalar <- data.frame(outcome=outcome,as.data.frame(atet_scalar)[c("estimate","std.error","statistic","p.value","s.value","conf.low","conf.high")])
-                      DONE <- atet_scalar
-                    }, error=function(e){})
-                    return(DONE)
-                  }), fill = TRUE))
-            
-            atet_factor <- as.data.frame(
-              data.table::rbindlist(
-                future_lapply(
-                  c("Credit","Eqip","Extension","OwnLnd"),
-                  function(outcome){
-                    # outcome <- "Credit"
-                    DONE <- NULL
-                    tryCatch({
-                      atet_factor <- marginaleffects::avg_comparisons(
-                        glm(as.formula(paste0(outcome,"~Treat*(",paste0(c(paste0("factor(",c(Emch,Fixd),")"),Scle),collapse = "+"),")")),
-                            data = md, weights = weights,family = quasibinomial()), variables = "Treat",
-                        newdata = subset(md, Treat == 1),wts = "weights",vcov="HC0",comparison = "lnratioavg",transform = "exp")
-                      atet_factor <- data.frame(outcome=outcome,as.data.frame(atet_factor)[c("estimate","p.value","s.value","conf.low","conf.high")])
-                      atet_factor$std.error <- atet_factor$statistic <- NA
-                      DONE <- atet_factor
-                    }, error=function(e){})
-                    return(DONE)
-                  }), fill = TRUE))
-            
-            DONE <- data.frame(m.specs[mm,c("method","distance","name")],rbind(atet_factor,atet_scalar))
-          }, error=function(e){})
-          return(DONE)
-        }), fill = TRUE))
-  
-  saveRDS(atet,file=paste0("results/matching_treatment_effects.rds"))
 }
 
 # unlink(list.files(getwd(),pattern =paste0(".out"),full.names = T))
