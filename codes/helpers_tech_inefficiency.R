@@ -1767,13 +1767,13 @@ Fxn_te_cals <- function(i){
                                                ")~",treatment,"*(",gsub("Treat~","",Match.formula),"+",Emch.formula,")"))
               
               fit_lm <- lm(as.formula(Fit.formula),weights = weights,data=data) # summary(fit_lm)
-              DISAB <- data[names(data)[!names(data) %in% treatment]];DISAB[,treatment] <- 1
-              DISAB <- predict(fit_lm,DISAB)
+              TREATED <- data[names(data)[!names(data) %in% treatment]];TREATED[,treatment] <- 1
+              TREATED <- predict(fit_lm,TREATED)
               
-              NODISAB <- data[names(data)[!names(data) %in% treatment]];NODISAB[,treatment] <- 0
-              NODISAB <- predict(fit_lm,NODISAB)
+              UNTREATED <- data[names(data)[!names(data) %in% treatment]];UNTREATED[,treatment] <- 0
+              UNTREATED <- predict(fit_lm,UNTREATED)
               
-              data$TE_OLS <- (exp(DISAB - NODISAB)-1)*100
+              data$TE_OLS <- (exp(TREATED - UNTREATED)-1)*100
               data$outcome <- outcome
               
               TE <- data[!(data$TE_OLS <= -100 | data$TE_OLS >= 100),]
