@@ -1777,11 +1777,11 @@ Fxn_te_cals <- function(i){
               data$outcome <- outcome
               
               TE <- data[!(data$TE_OLS <= -100 | data$TE_OLS >= 100),]
-              
+               
               setDT(TE) 
               ATE  <- data.frame(TE[, .(est = weighted.mean(x=TE_OLS, w=weights,na.rm= TRUE)), by = .(outcome)])$est
-              ATET <- data.frame(TE[educated %in% 1][, .(est = weighted.mean(x=TE_OLS, w=weights,na.rm= TRUE)), by = .(outcome)])$est
-              ATEU <- data.frame(TE[educated %in% 0][, .(est = weighted.mean(x=TE_OLS, w=weights,na.rm= TRUE)), by = .(outcome)])$est
+              ATET <- data.frame(TE[Treat %in% 1][, .(est = weighted.mean(x=TE_OLS, w=weights,na.rm= TRUE)), by = .(outcome)])$est
+              ATEU <- data.frame(TE[Treat %in% 0][, .(est = weighted.mean(x=TE_OLS, w=weights,na.rm= TRUE)), by = .(outcome)])$est
               
               aic <- as.numeric(AIC(fit_lm))
               ll  <- as.numeric(logLik(fit_lm))
