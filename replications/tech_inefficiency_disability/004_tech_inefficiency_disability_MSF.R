@@ -30,7 +30,7 @@ function(){
   #SPECS <- SPECS[!SPECS$f %in% c(3),]
   
   SPECS <- SPECS[!(paste0(SPECS$disasg,"_",SPECS$level,"_",SPECS$TechVar,"_",names(FXNFORMS)[SPECS$f],"_",
-                          names(DISTFORMS)[SPECS$d],"_",SPECS$nnm,".rds") %in% list.files("Results/Estimations/")),]
+                          names(DISTFORMS)[SPECS$d],"_",SPECS$nnm,".rds") %in% list.files("results/estimations/")),]
   
   row.names(SPECS) <- 1:nrow(SPECS)
   
@@ -47,7 +47,7 @@ if(!is.na(as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID")))){
 lapply(
   c(1:nrow(SPECS)),
   function(fit){
-    # fit <- 1
+    # fit <- 2
     f <- SPECS$f[fit]
     d <- SPECS$d[fit]
     disasg <- SPECS$disasg[fit]
