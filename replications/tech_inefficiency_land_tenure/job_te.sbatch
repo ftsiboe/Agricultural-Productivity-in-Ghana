@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-#SBATCH --job-name=ext_te
+#SBATCH --job-name=land_te
 #SBATCH --time=0-30:00:00    
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=20
