@@ -1,0 +1,31 @@
+"","input","disasg","level","Estimate","Estimate.sd","jack_pv"
+"3","Technology gap ratio","Female","Female
+farmer",-24.2455588756404,0.341519460845676,0
+"6","Technology gap ratio","Female","Male
+farmer",-9.3632513316179,1.46540319756539,0
+"9","Technology gap ratio","AgeCat","Farmer aged
+35 or less",-3.81542672748851,1.53348785223981,0.0145
+"12","Technology gap ratio","AgeCat","Farmer aged
+36 to 59",-15.4211932890667,0.973150037495356,0
+"15","Technology gap ratio","AgeCat","Farmer aged
+60 or more",-24.4280501666014,0.543693678358199,0
+"2","Technical efficiency","Female","Female
+farmer",23.0066574663409,0.46772129335797,0
+"5","Technical efficiency","Female","Male
+farmer",8.59823369236087,0.53973948926233,0
+"8","Technical efficiency","AgeCat","Farmer aged
+35 or less",8.0362728672413,0.539405404895105,0
+"11","Technical efficiency","AgeCat","Farmer aged
+36 to 59",10.2492096511943,0.48936410793958,0
+"14","Technical efficiency","AgeCat","Farmer aged
+60 or more",13.1925160598839,1.00713434904806,0
+"1","Meta-technical-efficiency","Female","Female
+farmer",-7.68004376951766,0.440608346124472,0
+"4","Meta-technical-efficiency","Female","Male
+farmer",-1.7530181139438,1.57901437050055,0.26958
+"7","Meta-technical-efficiency","AgeCat","Farmer aged
+35 or less",2.95559268789162,1.97477615164746,0.13763
+"10","Meta-technical-efficiency","AgeCat","Farmer aged
+36 to 59",-6.65754305248046,1.19316291187332,0
+"13","Meta-technical-efficiency","AgeCat","Farmer aged
+60 or more",-14.5773955351032,0.468727396522806,0

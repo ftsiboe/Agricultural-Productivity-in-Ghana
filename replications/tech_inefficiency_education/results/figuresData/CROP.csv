@@ -1,0 +1,49 @@
+"","input","disasg","level","Estimate","Estimate.sd","jack_pv"
+"3","Technology gap ratio","CROP","Cassava",-35.0731299002886,2.434224048386,0
+"6","Technology gap ratio","CROP","Pepper",-22.1487498958652,1.00334478710727,0
+"9","Technology gap ratio","CROP","Other",-15.0824740072652,1.98260871936857,0
+"12","Technology gap ratio","CROP","Maize",-12.9154427603091,1.1384568616464,0
+"15","Technology gap ratio","CROP","Yam",-14.2184485355655,0.989454702058321,0
+"18","Technology gap ratio","CROP","Cocoyam",-39.0868233554881,3.41531402146336,0
+"21","Technology gap ratio","CROP","Plantain",-36.0324492626675,3.72620309211824,0
+"24","Technology gap ratio","CROP","Cocoa",-32.2356738895004,0.312909807927908,0
+"27","Technology gap ratio","CROP","Okra",-7.75770249130007,1.43346379461758,0
+"30","Technology gap ratio","CROP","Sorghum",0.256350066851012,2.1630363674749,0.9059
+"33","Technology gap ratio","CROP","Peanut",-1.70011203677207,1.68319298499892,0.31491
+"36","Technology gap ratio","CROP","Millet",0.103109276042064,2.03635784253203,0.95972
+"39","Technology gap ratio","CROP","Rice",-0.0273834412973544,1.96678276492831,0.98892
+"42","Technology gap ratio","CROP","Beans",0.0628409220982791,1.97851138968694,0.97473
+"45","Technology gap ratio","CROP","Palm",-32.8086506373272,5.43542235868849,0
+"48","Technology gap ratio","CROP","Tomatoe",-8.75243266789828,2.3398327488704,0.00031
+"2","Technical efficiency","CROP","Cassava",38.8662257588073,1.87093132575084,0
+"5","Technical efficiency","CROP","Pepper",25.3327799700653,0.946850036427892,0
+"8","Technical efficiency","CROP","Other",12.4377477173415,0.646441132687618,0
+"11","Technical efficiency","CROP","Maize",8.71982136290214,0.448523683468382,0
+"14","Technical efficiency","CROP","Yam",12.5423991897494,0.519366959185897,0
+"17","Technical efficiency","CROP","Cocoyam",59.2171673486334,2.56930611279943,0
+"20","Technical efficiency","CROP","Plantain",54.8694227092858,2.91651456237971,0
+"23","Technical efficiency","CROP","Cocoa",45.4463040539181,2.3014482120687,0
+"26","Technical efficiency","CROP","Okra",14.7030235855572,0.426598783306729,0
+"29","Technical efficiency","CROP","Sorghum",4.00882337014233,0.403698169839894,0
+"32","Technical efficiency","CROP","Peanut",6.86445754759048,0.444944057414834,0
+"35","Technical efficiency","CROP","Millet",5.17395580811873,0.5130554254442,0
+"38","Technical efficiency","CROP","Rice",6.18019873044847,0.507982311999333,0
+"41","Technical efficiency","CROP","Beans",6.31555780293845,0.482181111647193,0
+"44","Technical efficiency","CROP","Palm",63.1459838206786,3.61336500886921,0
+"47","Technical efficiency","CROP","Tomatoe",38.1700920164239,1.16516252469522,0
+"1","Meta-technical-efficiency","CROP","Cassava",-12.3287494243633,1.81277715530501,0
+"4","Meta-technical-efficiency","CROP","Pepper",-6.07391064533106,0.433783720631563,0
+"7","Meta-technical-efficiency","CROP","Other",-5.65949635352945,1.77147460095829,0.00187
+"10","Meta-technical-efficiency","CROP","Maize",-4.79029875605465,1.37796148410696,0.00075
+"13","Meta-technical-efficiency","CROP","Yam",-4.24944462359303,0.983221648810123,4e-05
+"16","Meta-technical-efficiency","CROP","Cocoyam",-4.14190819416897,4.26651522826048,0.33399
+"19","Meta-technical-efficiency","CROP","Plantain",-2.02344963230192,4.05290296063923,0.61869
+"22","Meta-technical-efficiency","CROP","Cocoa",0.0437489306289597,0.362995156197183,0.90431
+"25","Meta-technical-efficiency","CROP","Okra",2.03739383489009,1.14022085069201,0.07699
+"28","Meta-technical-efficiency","CROP","Sorghum",4.07858103709376,2.4069268658332,0.09328
+"31","Meta-technical-efficiency","CROP","Peanut",4.6664965268728,2.04973039769574,0.02494
+"34","Meta-technical-efficiency","CROP","Millet",5.11401489078439,2.33579782284793,0.03089
+"37","Meta-technical-efficiency","CROP","Rice",5.51266470295476,2.23256602363402,0.01524
+"40","Meta-technical-efficiency","CROP","Beans",6.03860244482662,2.20825017159905,0.00739
+"43","Meta-technical-efficiency","CROP","Palm",15.75076774422,6.54811433399548,0.01799
+"46","Meta-technical-efficiency","CROP","Tomatoe",19.3520059746547,1.62740677420304,0
