@@ -8,7 +8,7 @@ dir.create("results/te")
 
 DATA <- Fxn_DATA_Prep(as.data.frame(haven::read_dta("data/tech_inefficiency_resource_extract_data.dta")))
 DATA <- DATA[as.character(haven::as_factor(DATA$CropID)) %in% "Pooled",]
-DATA$Treat <- DATA$extraction_any %in% 1
+DATA$Treat <- as.numeric(DATA$extraction_any %in% 1)
 
 Arealist <- names(DATA)[grepl("Area_",names(DATA))]
 Arealist <- Arealist[Arealist%in% paste0("Area_",c("Beans","Cassava","Cocoa","Cocoyam","Maize","Millet","Okra","Palm","Peanut",
