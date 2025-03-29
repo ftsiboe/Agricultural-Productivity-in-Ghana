@@ -26,7 +26,7 @@ DATA <- DATA[complete.cases(DATA[c("Surveyx","EaId","HhId","Mid","UID","Weight",
 summary(DATA[c(Emch,Scle,Fixd)])
 
 function(){
-  m.specs <- Fxn_draw_spec(drawN=100,DATA=DATA,myseed=05302024)
+  m.specs <- Fxn_draw_spec(drawN=100,DATA=DATA,myseed=myseed)
   saveRDS(m.specs$m.specs,file="results/mspecs.rds")
   saveRDS(m.specs$drawlist,file="results/drawlist.rds")
 }

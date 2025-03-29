@@ -6,6 +6,7 @@ library(purrr);library(data.table);library(MatchIt);library(randomForest);librar
 library(optmatch);library(Matching);library(rgenoud);library(quadprog);library(car)
 #---------------------------------------------
 # Minor                                    ####
+myseed <- 03242025
 mode <- function(x,na.rm = T) {ux <- unique(x); ux[which.max(tabulate(match(x, ux)))]}
 #---------------------------------------------
 # DATA Prep                                ####
