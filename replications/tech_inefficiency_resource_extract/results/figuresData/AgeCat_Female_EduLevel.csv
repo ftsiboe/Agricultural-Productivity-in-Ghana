@@ -1,0 +1,76 @@
+"","input","disasg","level","Estimate","Estimate.sd","jack_pv"
+"3","Technology gap ratio","Female","Female
+farmer",-4.79013366987466,1.0534710194102,2e-05
+"6","Technology gap ratio","Female","Male
+farmer",-4.09125225330133,0.831647202686148,0
+"9","Technology gap ratio","AgeCat","Farmer aged
+35 or less",-5.65579068430999,1.00446738863374,0
+"12","Technology gap ratio","AgeCat","Farmer aged
+36 to 59",-4.15483780386264,0.850234228103046,0
+"15","Technology gap ratio","AgeCat","Farmer aged
+60 or more",-3.06805037302347,0.892274971066942,0.00085
+"18","Technology gap ratio","EduLevel","Farmer with
+no formal
+education",-5.92852503917482,1.046951616158,0
+"21","Technology gap ratio","EduLevel","Farmer with
+primary education",-2.63312657360444,0.876269285226682,0.00336
+"24","Technology gap ratio","EduLevel","Farmer with
+junior secondary
+school education",-6.91474772146423,1.29654372993671,0
+"27","Technology gap ratio","EduLevel","Farmer with
+senior secondary
+school education",-0.877509441555936,0.54452313001697,0.11022
+"30","Technology gap ratio","EduLevel","Farmer with
+post senior
+secondary school
+education",4.14884936330949,0.617862151330029,0
+"2","Technical efficiency","Female","Female
+farmer",5.07143116579033,1.52195368478063,0.00121
+"5","Technical efficiency","Female","Male
+farmer",1.84493239323253,0.921909798288702,0.04808
+"8","Technical efficiency","AgeCat","Farmer aged
+35 or less",3.49700974340105,1.2743871802248,0.00719
+"11","Technical efficiency","AgeCat","Farmer aged
+36 to 59",2.10767696006957,1.00369618637445,0.03825
+"14","Technical efficiency","AgeCat","Farmer aged
+60 or more",3.04989146630625,0.920512240321847,0.00128
+"17","Technical efficiency","EduLevel","Farmer with
+no formal
+education",1.23226197869269,1.1202251868995,0.27397
+"20","Technical efficiency","EduLevel","Farmer with
+primary education",5.48772196207398,1.15956422555175,1e-05
+"23","Technical efficiency","EduLevel","Farmer with
+junior secondary
+school education",6.46818691773712,1.98830314730136,0.00156
+"26","Technical efficiency","EduLevel","Farmer with
+senior secondary
+school education",1.96580680947489,0.591484984366171,0.00124
+"29","Technical efficiency","EduLevel","Farmer with
+post senior
+secondary school
+education",1.48031628727391,0.482708982777372,0.00278
+"1","Meta-technical-efficiency","Female","Female
+farmer",-0.0968488149889436,0.532504861036232,0.85605
+"4","Meta-technical-efficiency","Female","Male
+farmer",-3.72407616899268,0.351168836342854,0
+"7","Meta-technical-efficiency","AgeCat","Farmer aged
+35 or less",-2.97483269776693,0.490951556785626,0
+"10","Meta-technical-efficiency","AgeCat","Farmer aged
+36 to 59",-3.59481630950042,0.37139832144787,0
+"13","Meta-technical-efficiency","AgeCat","Farmer aged
+60 or more",-0.639919827103519,0.433869883876371,0.14338
+"16","Meta-technical-efficiency","EduLevel","Farmer with
+no formal
+education",-6.30738133277764,0.401513185113847,0
+"19","Meta-technical-efficiency","EduLevel","Farmer with
+primary education",1.88136106633568,0.4365510297024,4e-05
+"22","Meta-technical-efficiency","EduLevel","Farmer with
+junior secondary
+school education",-1.49404619932786,0.675343978080165,0.02922
+"25","Meta-technical-efficiency","EduLevel","Farmer with
+senior secondary
+school education",0.548396852844947,0.356594468239842,0.12724
+"28","Meta-technical-efficiency","EduLevel","Farmer with
+post senior
+secondary school
+education",5.77488975993867,0.6002188029131,0

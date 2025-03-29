@@ -1,0 +1,49 @@
+"","input","disasg","level","Estimate","Estimate.sd","jack_pv"
+"3","Technology gap ratio","CROP","Yam",-9.30114022553858,0.799800049658977,0
+"6","Technology gap ratio","CROP","Tomatoe",-1.69449843889286,1.72678984687383,0.32881
+"9","Technology gap ratio","CROP","Other",-4.91163219249127,0.822686453528376,0
+"12","Technology gap ratio","CROP","Maize",-4.07370919240696,1.07357071574032,0.00025
+"15","Technology gap ratio","CROP","Okra",-5.19697870972772,1.04600087844925,0
+"18","Technology gap ratio","CROP","Cassava",-4.72522106706204,1.10187824345424,4e-05
+"21","Technology gap ratio","CROP","Pepper",-2.86418316532457,1.12765079740497,0.01263
+"24","Technology gap ratio","CROP","Beans",0.457427598803486,0.868020169743935,0.59938
+"27","Technology gap ratio","CROP","Cocoa",-7.21192758088049,1.13814731170324,0
+"30","Technology gap ratio","CROP","Palm",-7.44000529865086,1.1949588111651,0
+"33","Technology gap ratio","CROP","Millet",0.754775086655584,1.03258616120866,0.46652
+"36","Technology gap ratio","CROP","Plantain",0.74201955983588,1.12216482658135,0.50998
+"39","Technology gap ratio","CROP","Cocoyam",3.06051857756286,1.16058697448577,0.0097
+"42","Technology gap ratio","CROP","Peanut",2.32385405999102,0.889831121056223,0.0104
+"45","Technology gap ratio","CROP","Rice",8.77101885687412,0.763737576490131,0
+"48","Technology gap ratio","CROP","Sorghum",7.70722590288509,1.09754752638312,0
+"2","Technical efficiency","CROP","Yam",-2.91194286885629,1.13720189882278,0.01194
+"5","Technical efficiency","CROP","Tomatoe",-4.30698664659662,1.95982411541984,0.03028
+"8","Technical efficiency","CROP","Other",0.719995941855382,0.876400728401258,0.41329
+"11","Technical efficiency","CROP","Maize",0.116408561517399,1.19805627072215,0.92279
+"14","Technical efficiency","CROP","Okra",3.42932807769881,1.06951320589783,0.00181
+"17","Technical efficiency","CROP","Cassava",2.66269758339209,1.23880508309743,0.03401
+"20","Technical efficiency","CROP","Pepper",-1.63649383888465,1.64856104008863,0.32326
+"23","Technical efficiency","CROP","Beans",-2.43590913382103,0.563952768761162,4e-05
+"26","Technical efficiency","CROP","Cocoa",4.08633027722758,1.2713135630912,0.00176
+"29","Technical efficiency","CROP","Palm",7.13192109209846,1.21707418371032,0
+"32","Technical efficiency","CROP","Millet",2.5840549994329,1.05083733203213,0.01565
+"35","Technical efficiency","CROP","Plantain",3.25523464287168,1.12180661642946,0.00456
+"38","Technical efficiency","CROP","Cocoyam",0.444304338310504,0.977223337819676,0.65034
+"41","Technical efficiency","CROP","Peanut",3.04454186889066,0.687689099367608,2e-05
+"44","Technical efficiency","CROP","Rice",-3.02915089586655,0.672740716215233,2e-05
+"47","Technical efficiency","CROP","Sorghum",0.941364252688983,1.17269132726681,0.42403
+"1","Meta-technical-efficiency","CROP","Yam",-10.7911712120033,0.635544230362125,0
+"4","Meta-technical-efficiency","CROP","Tomatoe",-5.14884941801354,1.53644036569873,0.00114
+"7","Meta-technical-efficiency","CROP","Other",-5.10986754309309,0.444932101578035,0
+"10","Meta-technical-efficiency","CROP","Maize",-4.6619723828082,0.425692113276606,0
+"13","Meta-technical-efficiency","CROP","Okra",-4.56266984774268,1.09426648677073,7e-05
+"16","Meta-technical-efficiency","CROP","Cassava",-3.90962617184735,0.630890609908531,0
+"19","Meta-technical-efficiency","CROP","Pepper",-3.69637903866869,0.874924047479167,5e-05
+"22","Meta-technical-efficiency","CROP","Beans",-2.98340283811029,0.465652617197846,0
+"25","Meta-technical-efficiency","CROP","Cocoa",-2.84409958374356,0.816750045165349,0.00074
+"28","Meta-technical-efficiency","CROP","Palm",0.0479346415392369,1.07972542441862,0.96468
+"31","Meta-technical-efficiency","CROP","Millet",0.779398036804145,0.48632736859805,0.11217
+"34","Meta-technical-efficiency","CROP","Plantain",2.75303458221842,0.85204455991328,0.00167
+"37","Meta-technical-efficiency","CROP","Cocoyam",2.96138228337569,1.09184106182903,0.00787
+"40","Meta-technical-efficiency","CROP","Peanut",3.64508059008331,0.47947569852978,0
+"43","Meta-technical-efficiency","CROP","Rice",4.80699022801632,0.479371985456128,0
+"46","Meta-technical-efficiency","CROP","Sorghum",5.81237535509625,0.599450921830367,0

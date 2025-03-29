@@ -258,10 +258,9 @@ tab_main_specification <- function(){
             # chek <- unique(el_mean[c("type","sample","Survey","restrict","Tech","CoefName")])
             
             res <- rbind(ef_mean,el_mean,sf_estm)
-            DONE <- res[c("TCH","FXN","DIS","estm_type","Survey","CoefName","sample","restrict","level_type","Tech","Estimate","Estimate.sd","jack_pv")]
-            
-          }, error=function(e){})
-          return(DONE)
+            res <- res[c("TCH","FXN","DIS","estm_type","Survey","CoefName","sample","restrict","level_type","Tech","Estimate","Estimate.sd","jack_pv")]
+            return(res)
+          }, error = function(e){return(NULL)})
         }), fill = TRUE))
   return(res)
 }
@@ -361,189 +360,192 @@ fig_heterogeneity00 <- function(res,y_title){
   marg <- c(0.05,0.5,-0.5,0.5)
   fig.CropID   <- eff_fig_fxn(disasg = "CROP",xsize=5.5,title="(A) Major crops")
   fig.Location <- eff_fig_fxn(disasg = "Region",title="(B) Administrative regions")
-  fig <- cowplot::plot_grid(
+  
+  
+  fig_crop_region <- cowplot::plot_grid(
     fig.CropID + theme(plot.margin = unit(marg,"cm"))  ,
     fig.Location + theme(plot.margin = unit(marg,"cm")) ,
     ncol=1, align="v",rel_heights=c(1,1),
     greedy=F)
-  fig <- cowplot::plot_grid(fig,legend,ncol=1,rel_heights=c(1,0.1))
-  fig <- cowplot::plot_grid(Ylab,fig,nrow=1,rel_widths =c(0.002,0.03))
-  ggsave("results/figures/heterogeneity_crop_region.png", fig,dpi = 600,width = 8, height = 5)
+  fig_crop_region <- cowplot::plot_grid(fig_crop_region,legend,ncol=1,rel_heights=c(1,0.1))
+  fig_crop_region <- cowplot::plot_grid(Ylab,fig_crop_region,nrow=1,rel_widths =c(0.002,0.03))
   
-  fig.Farmer   <- eff_fig_fxn(disasg = c("AgeCat","Female","EduLevel"),
+  
+  fig.Farmer <- eff_fig_fxn(disasg = c("AgeCat","Female","EduLevel"),
                               type="farmer",xsize=7) +
     labs(title="",x="", y =y_title,caption = "") +
     theme(legend.position="bottom")
-  ggsave("results/figures/heterogeneity_genderAge.png", fig.Farmer,dpi = 600,width = 5, height = 5)
-  return("done-heterogeneity")
+
+  return(list(genderAge=fig.Farmer,crop_region=fig_crop_region))
 }
 #-----------------------------------------
 # Fig - Robustness                     ####
 
-fig_robustness <- function(y_title){
-data <- as.data.frame(
-  data.table::rbindlist(
-    lapply(
-      c("results/estimations/CropID_Pooled_educated_CD_hnormal_optimal.rds",
-        list.files("results/estimations/",pattern = "CropID_Pooled_educated_TL_",full.names = T)),
-      function(file) {
-        DONE <- NULL
-        tryCatch({
-          # file <- list.files("Results/Estimations/",pattern = "TL_hnormal_optimal.rds",full.names = T)[1]
-          ef_mean <- readRDS(file)$ef_mean
-          #ef_mean <- ef_mean[ef_mean$stat %in% "wmean",]
-          #ef_mean <- ef_mean[ef_mean$estType %in% "teBC",]
-          ef_mean <- ef_mean[ef_mean$type %in% c("TE","TGR","MTE"),]
-          ef_mean <- ef_mean[ef_mean$CoefName %in% c("efficiencyGap_pct"),]
-          #ef_mean <- ef_mean[ef_mean$restrict %in% c("Restricted"),]
-          ef_mean <- ef_mean[ef_mean$Survey %in% c("GLSS0"),]
-          DONE <- ef_mean
-          
-        }, error=function(e){})
-        return(DONE)
-      }), fill = TRUE))
+fig_robustness <- function(y_title,res_list){
+  data <- as.data.frame(
+    data.table::rbindlist(
+      lapply(
+        res_list,
+        function(file) {
+          tryCatch({
+            # file <- list.files("Results/Estimations/",pattern = "TL_hnormal_optimal.rds",full.names = T)[1]
+            ef_mean <- readRDS(file)$ef_mean
+            #ef_mean <- ef_mean[ef_mean$stat %in% "wmean",]
+            #ef_mean <- ef_mean[ef_mean$estType %in% "teBC",]
+            ef_mean <- ef_mean[ef_mean$type %in% c("TE","TGR","MTE"),]
+            ef_mean <- ef_mean[ef_mean$CoefName %in% c("efficiencyGap_pct"),]
+            #ef_mean <- ef_mean[ef_mean$restrict %in% c("Restricted"),]
+            ef_mean <- ef_mean[ef_mean$Survey %in% c("GLSS0"),]
+            ef_mean$file <- file 
+            return(ef_mean)
+          }, error = function(e){return(NULL)})
+        }), fill = TRUE))
+  
+  data <- data %>% group_by(sample,Tech,type,estType,Survey,stat,CoefName,restrict,FXN,DIS, disasg,level,TCH,TCHLvel) %>%
+    mutate(Estimate.length_max = max(Estimate.length, na.rm = TRUE)) %>% ungroup() %>% as.data.frame(.)
 
+  data <- data[data$Estimate.length_max == data$Estimate.length,]
 
-mainest <- unique(data[(data$FXN %in% "TL" & data$DIS %in% "hnormal" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
-                          data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link) & 
-                          data$restrict %in% c("Restricted")),])
-mainest <- mainest[c("type","Estimate","Estimate.sd")]
-names(mainest) <- c("type","mainest","mainest.sd")
-
-production <- unique(data[(data$DIS %in% "hnormal" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
-                             data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link) & 
-                             data$restrict %in% c("Restricted")),])
-production$options <- ifelse(production$FXN %in% "CD","Cobb-Douglas production function",NA)
-production$options <- ifelse(production$FXN %in% "TL","Translog production function",production$options)
-production$options <- ifelse(production$FXN %in% "LN","Linear production function",production$options)
-production$options <- ifelse(production$FXN %in% "QD","Quadratic production function",production$options)
-production$options <- ifelse(production$FXN %in% "GP","Generalized production function",production$options)
-production$options <- ifelse(production$FXN %in% "TP","Transcendental production function",production$options)
-production <- production[c("options","type","Estimate","Estimate.sd")]
-production$dimension <- "(A) production"
-production
-
-distribution <- unique(data[(data$FXN %in% "TL" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
+  mainest <- unique(data[(data$FXN %in% "TL" & data$DIS %in% "hnormal" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
+                            data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link) & 
+                            data$restrict %in% c("Restricted")),])
+  mainest <- mainest[c("type","Estimate","Estimate.sd")]
+  names(mainest) <- c("type","mainest","mainest.sd")
+  
+  production <- unique(data[(data$DIS %in% "hnormal" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
                                data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link) & 
                                data$restrict %in% c("Restricted")),])
-distribution$options <- ifelse(distribution$DIS %in% "hnormal","Half normal distribution",NA)
-distribution$options <- ifelse(distribution$DIS %in% "tnormal","Truncated normal distribution",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "tnormal_scaled","Scaled truncated normal distribution with the",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "exponential","Exponential distribution",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "rayleigh","Rayleigh distribution",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "uniform","Uniform distribution",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "gamma","Gamma distribution",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "lognormal","Log normal distribution",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "weibull","Weibull distribution",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "tslaplace","Truncated skewed Laplace distribution",distribution$options)
-distribution$options <- ifelse(distribution$DIS %in% "genexponential","Generalized exponential distribution",distribution$options)
-distribution <- distribution[c("options","type","Estimate","Estimate.sd")]
-distribution$Estimate.sd <- ifelse(distribution$options %in% c("Rayleigh distribution","Truncated normal distribution"),NA,distribution$Estimate.sd)
-distribution$dimension <- "(B) distribution"
-distribution
-
-efficiency <- unique(data[(data$DIS %in% "hnormal" & data$stat %in% "wmean" & 
+  production$options <- ifelse(production$FXN %in% "CD","Cobb-Douglas production function",NA)
+  production$options <- ifelse(production$FXN %in% "TL","Translog production function",production$options)
+  production$options <- ifelse(production$FXN %in% "LN","Linear production function",production$options)
+  production$options <- ifelse(production$FXN %in% "QD","Quadratic production function",production$options)
+  production$options <- ifelse(production$FXN %in% "GP","Generalized production function",production$options)
+  production$options <- ifelse(production$FXN %in% "TP","Transcendental production function",production$options)
+  production <- production[c("options","type","Estimate","Estimate.sd")]
+  production$dimension <- "(A) production"
+  production
+  
+  distribution <- unique(data[(data$FXN %in% "TL" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
+                                 data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link) & 
+                                 data$restrict %in% c("Restricted")),])
+  distribution$options <- ifelse(distribution$DIS %in% "hnormal","Half normal distribution",NA)
+  distribution$options <- ifelse(distribution$DIS %in% "tnormal","Truncated normal distribution",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "tnormal_scaled","Scaled truncated normal distribution with the",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "exponential","Exponential distribution",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "rayleigh","Rayleigh distribution",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "uniform","Uniform distribution",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "gamma","Gamma distribution",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "lognormal","Log normal distribution",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "weibull","Weibull distribution",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "tslaplace","Truncated skewed Laplace distribution",distribution$options)
+  distribution$options <- ifelse(distribution$DIS %in% "genexponential","Generalized exponential distribution",distribution$options)
+  distribution <- distribution[c("options","type","Estimate","Estimate.sd")]
+  distribution$Estimate.sd <- ifelse(distribution$options %in% c("Rayleigh distribution","Truncated normal distribution"),NA,distribution$Estimate.sd)
+  distribution$dimension <- "(B) distribution"
+  distribution
+  
+  efficiency <- unique(data[(data$DIS %in% "hnormal" & data$stat %in% "wmean" & 
+                               data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link) & 
+                               data$restrict %in% c("Restricted")),])
+  efficiency$options <- ifelse(efficiency$estType %in% "teJLMS","Jondrow et al. (1982) efficiency",NA)
+  efficiency$options <- ifelse(efficiency$estType %in% "teBC","Battese and Coelli (1988) efficiency",efficiency$options)
+  efficiency$options <- ifelse(efficiency$estType %in% "teMO","Conditional model efficiency",efficiency$options)
+  efficiency <- efficiency[c("options","type","Estimate","Estimate.sd")]
+  efficiency$dimension <- "(C) efficiency"
+  efficiency
+  
+  tendency <- unique(data[(data$DIS %in% "hnormal" & data$estType %in% "teBC" & 
                              data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link) & 
                              data$restrict %in% c("Restricted")),])
-efficiency$options <- ifelse(efficiency$estType %in% "teJLMS","Jondrow et al. (1982) efficiency",NA)
-efficiency$options <- ifelse(efficiency$estType %in% "teBC","Battese and Coelli (1988) efficiency",efficiency$options)
-efficiency$options <- ifelse(efficiency$estType %in% "teMO","Conditional model efficiency",efficiency$options)
-efficiency <- efficiency[c("options","type","Estimate","Estimate.sd")]
-efficiency$dimension <- "(C) efficiency"
-efficiency
-
-tendency <- unique(data[(data$DIS %in% "hnormal" & data$estType %in% "teBC" & 
-                           data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link) & 
-                           data$restrict %in% c("Restricted")),])
-tendency <- tendency[!tendency$stat %in% "mode",]
-tendency$options <- ifelse(tendency$stat %in% "wmean","Weighted mean efficiency aggregation",NA)
-tendency$options <- ifelse(tendency$stat %in% "mean","Simple mean efficiency aggregation",tendency$options)
-tendency$options <- ifelse(tendency$stat %in% "median","Median efficiency aggregation",tendency$options)
-#tendency$options <- ifelse(tendency$stat %in% "mode","modal efficiency aggregation",tendency$options)
-tendency <- tendency[c("options","type","Estimate","Estimate.sd")]
-tendency$dimension <- "(D) tendency"
-
-sample <-  unique(data[(data$FXN %in% "TL" & data$DIS %in% "hnormal" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
-                          data$restrict %in% c("Restricted")),])
-sample$options <- ifelse(sample$sample %in% "unmatched","Unmatched sample",NA)
-sample$options <- ifelse(sample$sample %in% "logit","Logit [PS] matched sample",sample$options)
-sample$options <- ifelse(sample$sample %in% "cauchit","Cauchit [PS] matched sample",sample$options)
-sample$options <- ifelse(sample$sample %in% "probit","Probit [PS] matched sample",sample$options)
-sample$options <- ifelse(sample$sample %in% "cloglog","Complementary Log-Log [PS] matched sample",sample$options)
-sample$options <- ifelse(sample$sample %in% "euclidean","Euclidean matched sample",sample$options)
-sample$options <- ifelse(sample$sample %in% "robust_mahalanobis","Robust Mahalanobis matched sample",sample$options)
-sample$options <- ifelse(sample$sample %in% "scaled_euclidean","Scaled Euclidean matched sample",sample$options)
-sample$options <- ifelse(sample$sample %in% "mahalanobis","Mahalanobis matched sample",sample$options)
-sample <- sample[c("options","type","Estimate","Estimate.sd")]
-sample$dimension <- "(E) sample"
-
-Restricted <- unique(data[(data$FXN %in% "TL" & data$DIS %in% "hnormal" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
-                             data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link)),])
-Restricted$options <- paste0(Restricted$restrict," production function")
-Restricted <- Restricted[c("options","type","Estimate","Estimate.sd")]
-Restricted$dimension <- "(F) Production function properties"
-Restricted
-
-dataF <- rbind(efficiency,production,distribution,tendency,sample,Restricted)
-
-dataF <- dplyr::inner_join(dataF,mainest,by=c("type"))
-
-xlab <- doBy::summaryBy(Estimate~dimension+options,data=dataF[dataF$type %in% "MTE",],FUN=mean)
-
-xlab <- xlab[order(xlab$Estimate.mean),]
-xlab <- xlab[order(xlab$options),]
-xlab <- xlab[order(-as.integer(as.factor(xlab$dimension))),]
-xlab$x <- 1:nrow(xlab)
-
-xlab <- unique(xlab[c("dimension","options","x")])
-
-dataF <- dplyr::inner_join(dataF,xlab,by=c("dimension","options"))
-
-dataF$type <- as.numeric(as.character(factor(dataF$type,levels = c("MTE","TGR","TE","risk"),labels = 1:4)))
-dataF$type <- factor(dataF$type,levels = 1:4,
-                     labels = c("Meta-frontier\ntechnical\nefficiency (MTE)",
-                                "Technology gap\nratio (TGR)",
-                                "Technical\nefficiency (TE)",
-                                "Production\ncoefficient\nof variation"))
-
-xline <- xlab[xlab$x %in% doBy::summaryBy(x~dimension,FUN=min,data=xlab)$x.min,"x"]
-xline <- xline[2:length(xline)]-0.5
-
-dataF$mainestN <- "Preferred specification estimate and 95% confidence interval"
-
-fig <- ggplot(data=dataF,aes(x=factor(x), y=Estimate, group=1)) +
-  geom_vline(xintercept =xline,size = 0.2,color = "gray",lty=1) +
-  geom_ribbon(aes(ymin = mainest - mainest.sd*1.96, ymax = mainest + mainest.sd*1.96, fill=mainestN), 
-              alpha = 0.5,color="thistle") +
-  geom_line(aes(y=mainest,linetype=mainestN,color=mainestN),size=0.5) + 
-  geom_errorbar(aes(ymax = Estimate + Estimate.sd*1.96,ymin = Estimate - Estimate.sd*1.96),
-                width = 0.25,color="blue") + 
-  geom_point(size=1.5,shape=21,fill="purple",color="blue") + 
-  scale_fill_manual(values ="thistle") +
-  scale_color_manual(values ="black") +
-  scale_linetype_manual(values =2) +
-  scale_x_discrete(breaks = xlab$x,labels = xlab$options) +
-  facet_grid(~type , scales = "free_x") +
-  guides(fill = guide_legend(nrow=2,override.aes = list(size=2.5))) + 
-  labs(title= "", x = "", y = y_title, caption = "") +
-  ers_theme() +
-  theme(axis.title= element_text(size=9,color="black"),
-        plot.title  = element_text(size = 8),
-        axis.text.y = element_text(size = 8),
-        axis.text.x = element_text(size = 8), #
-        axis.title.y= element_text(size=6,color="black"),
-        legend.position="none",
-        legend.title=element_text(size=7),
-        legend.text=element_text(size=7),
-        plot.caption = element_text(size=8),
-        strip.text = element_text(size = 10),
-        strip.background = element_rect(fill = "white", colour = "black", size = 1)) + coord_flip()
-
-ggsave(paste0("results/figures/robustness.png"),fig,dpi = 600,width = 6.8, height = 7.8)
-return("done-robustness")
+  tendency <- tendency[!tendency$stat %in% "mode",]
+  tendency$options <- ifelse(tendency$stat %in% "wmean","Weighted mean efficiency aggregation",NA)
+  tendency$options <- ifelse(tendency$stat %in% "mean","Simple mean efficiency aggregation",tendency$options)
+  tendency$options <- ifelse(tendency$stat %in% "median","Median efficiency aggregation",tendency$options)
+  #tendency$options <- ifelse(tendency$stat %in% "mode","modal efficiency aggregation",tendency$options)
+  tendency <- tendency[c("options","type","Estimate","Estimate.sd")]
+  tendency$dimension <- "(D) tendency"
+  
+  sample <-  unique(data[(data$FXN %in% "TL" & data$DIS %in% "hnormal" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
+                            data$restrict %in% c("Restricted")),])
+  sample$options <- ifelse(sample$sample %in% "unmatched","Unmatched sample",NA)
+  sample$options <- ifelse(sample$sample %in% "logit","Logit [PS] matched sample",sample$options)
+  sample$options <- ifelse(sample$sample %in% "cauchit","Cauchit [PS] matched sample",sample$options)
+  sample$options <- ifelse(sample$sample %in% "probit","Probit [PS] matched sample",sample$options)
+  sample$options <- ifelse(sample$sample %in% "cloglog","Complementary Log-Log [PS] matched sample",sample$options)
+  sample$options <- ifelse(sample$sample %in% "euclidean","Euclidean matched sample",sample$options)
+  sample$options <- ifelse(sample$sample %in% "robust_mahalanobis","Robust Mahalanobis matched sample",sample$options)
+  sample$options <- ifelse(sample$sample %in% "scaled_euclidean","Scaled Euclidean matched sample",sample$options)
+  sample$options <- ifelse(sample$sample %in% "mahalanobis","Mahalanobis matched sample",sample$options)
+  sample <- sample[c("options","type","Estimate","Estimate.sd")]
+  sample$dimension <- "(E) sample"
+  
+  Restricted <- unique(data[(data$FXN %in% "TL" & data$DIS %in% "hnormal" & data$stat %in% "wmean" & data$estType %in% "teBC" & 
+                               data$sample %in% ifelse(mspecs_optimal$link %in% NA,mspecs_optimal$distance,mspecs_optimal$link)),])
+  Restricted$options <- paste0(Restricted$restrict," production function")
+  Restricted <- Restricted[c("options","type","Estimate","Estimate.sd")]
+  Restricted$dimension <- "(F) Production function properties"
+  Restricted
+  
+  dataF <- rbind(efficiency,production,distribution,tendency,sample,Restricted)
+  
+  dataF <- dplyr::inner_join(dataF,mainest,by=c("type"))
+  
+  xlab <- doBy::summaryBy(Estimate~dimension+options,data=dataF[dataF$type %in% "MTE",],FUN=mean)
+  
+  xlab <- xlab[order(xlab$Estimate.mean),]
+  xlab <- xlab[order(xlab$options),]
+  xlab <- xlab[order(-as.integer(as.factor(xlab$dimension))),]
+  xlab$x <- 1:nrow(xlab)
+  
+  xlab <- unique(xlab[c("dimension","options","x")])
+  
+  dataF <- dplyr::inner_join(dataF,xlab,by=c("dimension","options"))
+  
+  dataF$type <- as.numeric(as.character(factor(dataF$type,levels = c("MTE","TGR","TE","risk"),labels = 1:4)))
+  dataF$type <- factor(dataF$type,levels = 1:4,
+                       labels = c("Meta-frontier\ntechnical\nefficiency (MTE)",
+                                  "Technology gap\nratio (TGR)",
+                                  "Technical\nefficiency (TE)",
+                                  "Production\ncoefficient\nof variation"))
+  
+  xline <- xlab[xlab$x %in% doBy::summaryBy(x~dimension,FUN=min,data=xlab)$x.min,"x"]
+  xline <- xline[2:length(xline)]-0.5
+  
+  dataF$mainestN <- "Preferred specification estimate and 95% confidence interval"
+  
+  fig <- ggplot(data=dataF,aes(x=factor(x), y=Estimate, group=1)) +
+    geom_vline(xintercept =xline,size = 0.2,color = "gray",lty=1) +
+    geom_ribbon(aes(ymin = mainest - mainest.sd*1.96, ymax = mainest + mainest.sd*1.96, fill=mainestN), 
+                alpha = 0.5,color="thistle") +
+    geom_line(aes(y=mainest,linetype=mainestN,color=mainestN),size=0.5) + 
+    geom_errorbar(aes(ymax = Estimate + Estimate.sd*1.96,ymin = Estimate - Estimate.sd*1.96),
+                  width = 0.25,color="blue") + 
+    geom_point(size=1.5,shape=21,fill="purple",color="blue") + 
+    scale_fill_manual(values ="thistle") +
+    scale_color_manual(values ="black") +
+    scale_linetype_manual(values =2) +
+    scale_x_discrete(breaks = xlab$x,labels = xlab$options) +
+    facet_grid(~type , scales = "free_x") +
+    guides(fill = guide_legend(nrow=2,override.aes = list(size=2.5))) + 
+    labs(title= "", x = "", y = y_title, caption = "") +
+    ers_theme() +
+    theme(axis.title= element_text(size=9,color="black"),
+          plot.title  = element_text(size = 8),
+          axis.text.y = element_text(size = 8),
+          axis.text.x = element_text(size = 8), #
+          axis.title.y= element_text(size=6,color="black"),
+          legend.position="none",
+          legend.title=element_text(size=7),
+          legend.text=element_text(size=7),
+          plot.caption = element_text(size=8),
+          strip.text = element_text(size = 10),
+          strip.background = element_rect(fill = "white", colour = "black", size = 1)) + coord_flip()
+  
+  ggsave(paste0("results/figures/robustness.png"),fig,dpi = 600,width = 6.8, height = 7.8)
+  return("done-robustness")
 }
 #-----------------------------------------
-# Matching TE                          ####
+# Fig - Matching TE                    ####
 
 fig_input_te <- function(y_title,tech_lable){
 
@@ -558,8 +560,7 @@ data <- data[data$level %in% c("ATE","ATET","ATEU"),]
 data$level <- ifelse(data$level %in% "ATE" ,1,data$level)
 data$level <- ifelse(data$level %in% "ATET" ,2,data$level)
 data$level <- ifelse(data$level %in% "ATEU" ,3,data$level)
-data$level <- factor(as.numeric(data$level),levels = 1:3,
-                     labels = tech_lable)
+data$level <- factor(as.numeric(data$level),levels = 1:3,labels = tech_lable)
 
 data$outC <- ifelse(data$outcome %in% "HrvstKg" ,1,NA)
 data$outC <- ifelse(data$outcome %in% "SeedKg" ,2,data$outC)
@@ -614,7 +615,7 @@ ggsave(paste0("results/figures/input_TE.png"), figTe,dpi = 600,width = 6, height
 return("done-input_TE")
 }
 #-----------------------------------------
-# Figure - Covariate balance           ####
+# Fig - Covariate balance              ####
 fig_covariate_balance <- function(){
   bal_tab <- readRDS(paste0("results/balance_table.rds"))
   ranking <- readRDS(paste0("results/mspecs_ranking.rds"))
@@ -723,5 +724,60 @@ fig_covariate_balance <- function(){
   
   ggsave(paste0("results/figures/Covariate_balance_variance.png"), balance,dpi = 600,width = 11, height = 7)
   return("done-Covariate_balance_variance")
+}
+#-----------------------------------------
+# Fig - Distribution                   ####
+fig_dsistribution <- function(dataFrq){
+
+  dataFrq <- dataFrq[!dataFrq$Tech %in% NA,]
+  dataFrq$input <- ifelse(dataFrq$type %in% "TE","(i) Technical efficiency",NA)
+  dataFrq$input <- ifelse(dataFrq$type %in% "TGR","(ii) Technology gap ratio",dataFrq$input)
+  dataFrq$input <- ifelse(dataFrq$type %in% "MTE","(iii) Meta-technical-efficiency",dataFrq$input)
+  dataFrq$input <- ifelse(dataFrq$type %in% "TE0","(iv) Technical efficiency [Naïve]",dataFrq$input)
+  
+  dataFrq$Survey <- ifelse(dataFrq$Survey %in% "GLSS6","(A) 2012/2013",dataFrq$Survey)
+  dataFrq$Survey <- ifelse(dataFrq$Survey %in% "GLSS7","(B) 2016/17",dataFrq$Survey)
+  dataFrq$Survey <- ifelse(dataFrq$Survey %in% "GLSS0","(C) Mean of A and B",dataFrq$Survey)
+  
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "unmatched","Unmatched",dataFrq$sample)
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "logit","Logit [PS]",dataFrq$sample)
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "cauchit","Cauchit [PS]",dataFrq$sample)
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "probit","Probit [PS]",dataFrq$sample)
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "cloglog","Complementary\nLog-Log [PS]",dataFrq$sample)
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "euclidean","Euclidean",dataFrq$sample)
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "robust_mahalanobis","Robust\nMahalanobis",dataFrq$sample)
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "scaled_euclidean","Scaled\nEuclidean",dataFrq$sample)
+  dataFrq$sample <- ifelse(dataFrq$sample %in% "mahalanobis","Mahalanobis",dataFrq$sample)
+  
+  xlabs <- unique(dataFrq[c("range","Frqlevel")])
+  xlabs <- xlabs[xlabs$Frqlevel %in% seq(1,20,5),]
+  
+  Fig <- ggplot(data=dataFrq,aes(x=Frqlevel,y=Estimate, fill = Tech,color=Tech,shape=Tech,group=Tech)) +
+    geom_bar(stat="identity",position="stack") +
+    #geom_density(stat="identity",position="jitter",alpha=0.3)+
+    #geom_errorbar(aes(x=Frqlevel,ymax = Estimate + Estimate.sd*1.96, ymin = Estimate - Estimate.sd*1.96), width = 0.25,colour="blue") +
+    facet_grid(input ~ sample , scales = "free_y") +
+    scale_fill_manual(name="",values = c("violet","purple")) +
+    scale_color_manual(name="",values = c("violet","purple")) +
+    scale_shape_manual(name="",values = c(21,22,23,24,25,8,4)) +
+    scale_x_continuous(breaks = xlabs$level,labels = xlabs$range) +
+    labs(title= "", x = "", y = "", caption = "") +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.ticks.y = element_blank(),
+          legend.position="bottom",
+          legend.text=element_text(size=11),
+          legend.title=element_text(size=11),
+          axis.title.y=element_text(size=11),
+          axis.title.x=element_text(size=11),
+          axis.text.x = element_text(size = 7,angle = 90,vjust = 0.3,hjust = 1), #
+          axis.text.y = element_text(size=6),
+          plot.caption = element_text(size=11,hjust = 0 ,vjust = 0, face = "italic"),
+          strip.text = element_text(size = 6),
+          strip.background = element_rect(fill = "white", colour = "black", size = 1))
+  
+  ggsave("results/figures/score_distributions.png", Fig,dpi = 600,width = 11, height = 7)
+  return("done-score_distributions")
 }
 #-----------------------------------------
