@@ -28,11 +28,10 @@ By clearly identifying the root causes of production shortfalls, this project co
 * Peace and Social Cohesion is Associated with Efficient Utilization of High Output Oriented Crop Production Technologies in Ghana
 * Technology Gaps Drive Inequality in Production for Farmers with Disabilities
 * The Education Disparity in Farm Technology Endowment and its Efficient Use
-* Land Tenure Security is a Catalyst for Adoption and Efficient Utilization of High-Output Crop Production Technologies in Ghana
   
 ## Scheduled Studies 
 * The link between extension services and Farm Technology Endowment and its Efficient Use
-* Land Tenure Security is a Catalyst for Adoption and Efficient Utilization of High-Output Crop Production Technologies in Ghana
+* Is Land Tenure Security a Catalyst for Farm Technology Endowment and its Efficient Use
 * Off-farm work driven disparities in Farm Technology Endowment and its Efficient Use
 
   
